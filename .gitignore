@@ -1,0 +1,13 @@
+.vs/
+*.iobj
+*.ipdb
+*.tlog
+*.log
+*.pdb
+*/Release/*.obj
+*/Release/*.exe
+Release/DoodleJump3D.exe
+OpenGL-basico/Release/mesh.obj
+OpenGL-basico/Release/main.obj
+OpenGL-basico/Release/game_hud.obj
+OpenGL-basico/Release/DoodleJump3D.exe.recipe
