@@ -23,11 +23,13 @@ h_w_color render() {
 	h_w_color color(
 		500,
 		w_color(500, tuple<double, double, double, double>(0.0, 0.0, 0.0, 1.0)));
+	
 	for (int i = 0; i < altura; i++) {
 		for (int j = 0; j < ancho; j++) {
 			double incrementoI = (-i - 1) * (verticalSize / altura);
 			double incrementoJ = (j + 1) * (horizontalSize / ancho);
-			//Punto* dirRayo = (new Punto(cam->getcenterOfViewPlane()->getX(), (cam->getverticalSize() / 2) + incrementoI - (cam->getverticalSize() / (altura * 2)), (-cam->gethorizontalSize() / 2) + incrementoJ - (cam->gethorizontalSize() / (ancho * 2))))->sub(cam->getposCamara()); //el 6 corresponde a la distancia en x de posCamara y planoVista. Restar posCamara.
+
+			// Punto* dirRayo = (new Punto(cam->getcenterOfViewPlane()->getX(), (cam->getverticalSize() / 2) + incrementoI - (cam->getverticalSize() / (altura * 2)), (-cam->gethorizontalSize() / 2) + incrementoJ - (cam->gethorizontalSize() / (ancho * 2))))->sub(cam->getposCamara()); //el 6 corresponde a la distancia en x de posCamara y planoVista. Restar posCamara.
 			//Ray* rayo = new Ray(cam->getposCamara(), dirRayo);
 			////std::cout << rayo->getdirection()->getX() << endl;
 			//color[i][j] = traza_rr(rayo, 1);

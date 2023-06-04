@@ -8,10 +8,12 @@ class Punto {
 		double z;
 		double norma_al_cuadrado;
 	public:
+		Punto();
 		Punto(double x, double y, double z);
+		~Punto();
 		Punto operator-(Punto p);
 		Punto operator+(Punto p);
-		Punto operator*(Punto d);
+		double operator*(Punto d);
 		Punto operator*(double d);
 		double getNorma_al_cuadrado();
 		double getX();

@@ -11,20 +11,20 @@
 			<y>0</y>
 			<z>0</z>
 		</lookAtCamara>
-		<upVector>
+		<!-- <upVector>
 			<x>0</x>
 			<y>1</y>
 			<z>0</z>
-		</upVector>
-		<!-- <distancia> -->
-			<!-- 10 -->
-		<!-- </distancia> -->
-		<!-- <horizontalSize> -->
-			<!-- 10 -->
-		<!-- </horizontalSize> -->
-		<!-- <verticalSize> -->
-			<!-- 10 -->
-		<!-- </verticalSize> -->
+		</upVector> -->
+		<distancia> 
+			10 
+		</distancia> 
+		<horizontalSize> 
+			10 
+		</horizontalSize> 
+		<verticalSize> 
+			10 
+		</verticalSize> 
 	</camara>
 	<luces>
 		<luz>

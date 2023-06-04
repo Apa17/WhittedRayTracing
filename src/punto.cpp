@@ -1,5 +1,16 @@
 #include "../inc/punto.h"
 
+Punto::Punto() {
+    this->x=0;
+    this->y=0;
+    this->z=0;
+    this->norma_al_cuadrado=0;
+}
+
+Punto::~Punto() {
+    // TODO
+}
+
 Punto::Punto(double x, double y, double z) {
     this->x=x;
     this->y=y;
@@ -31,8 +42,8 @@ Punto Punto::operator+(Punto p) {
     return Punto(x+p.getX(), y+p.getY(), z+p.getZ());
 }
 
-Punto Punto::operator*(Punto d) {
-    return Punto(x*d.getX(), y*d.getY(), z*d.getZ());
+double Punto::operator*(Punto p) {
+    return x*p.getX()+y*p.getY()+z*p.getZ();
 }
 
 Punto Punto::operator*(double d) {
