@@ -17,3 +17,10 @@ OpenGL-basico/Release/vc143.idb
 Release/WhittedRayTracing.exe
 OpenGL-basico/Release/*.obj
 OpenGL-basico/Release/WhittedRayTracing.exe.recipe
+Debug/*.obj
+Debug/*.exe
+Release/*.obj
+Release/*.exe
+OpenGL-basico/Debug/WhittedRayTracing.exe.recipe
+OpenGL-basico/Debug/WhittedRayTracing.ilk
+OpenGL-basico/Release/DoodleJump3D.exe.recipe
