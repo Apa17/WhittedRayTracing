@@ -1,15 +1,19 @@
-#ifndef ESCENA_H
-#define ESCENA_H
+#ifndef ESFERA_H
+#define ESFERA_H
 
 #include "objeto.h"
 #include "punto.h"
 #include <tuple>
+using color = std::tuple<double, double, double, double>;
 
 class Esfera : public Objeto {
 	private:
 		double radio;
 		Punto centro;
+		color colour;
 	public:
-		std::pair<bool, Punto> chequear_colision(Punto posicion_camara, Ray rayo);
+		Esfera(double radio, Punto centro, color colour);
+		std::pair<bool, Punto> chequear_colision(Ray rayo);
+		color getColor();
 };
 #endif 

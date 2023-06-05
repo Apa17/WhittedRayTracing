@@ -15,6 +15,9 @@ class Punto {
 		Punto operator+(Punto p);
 		double operator*(Punto d);
 		Punto operator*(double d);
+		bool operator==(Punto p);
+		Punto cross(Punto p);
+		Punto normalized();
 		double getNorma_al_cuadrado();
 		double getX();
 		double getY();

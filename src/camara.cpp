@@ -1,5 +1,6 @@
 #include "../inc/camara.h"
 
+
 Camara::Camara(Punto posicion, Punto upVector, Punto lookatVector, double verticalSize, double horizontalSize) {
     this->posicion = Punto(0,0,0);
     this->upVector = upVector;
@@ -20,22 +21,44 @@ Punto Camara::getLookatVector() {
     return this->lookatVector;
 }
 
-Punto** Camara::getRays(int width, int height) {
-    // calculamos el plano
-    double xp = this->lookatVector.getX();
-    double yp = this->lookatVector.getY();
-    double zp = this->lookatVector.getZ();
-    double coef = -xp*xp - yp*yp - zp*zp;
-    // origen = lookat
-    Punto direccion = Punto(this->upVector.getX(), this->upVector.getY(), (-xp*this->upVector.getX() - yp*this->upVector.getY() - coef)/zp);
-    //normalizo direccion
-    // plano = xpX + ypY + zpZ + coef = 0
-    Punto** rayos = new Punto*[width];
-    for (int i = 0; i < width; i++) {
-        rayos[i] = new Punto[height];
-        for (int j = 0; j < height ; j++) { // 0, 1, 0
-            //estoy en lookat me muevo hacia arriba por el up vector verticalSize/2
+Ray** Camara::getRays(int width, int height) {
+    Ray** rayos = new Ray*[height];
+    
+    // Calcular la dirección del vector "forward"
+    Punto forward = lookatVector.normalized(); // Normalizar el vector
+    
+    // Calcular el vector "right" perpendicular a la dirección forward y el vector upVector
+    Punto right = forward.cross(upVector).normalized(); // Producto cruz y normalización
+    
+    // Calcular el vector "up" perpendicular a la dirección forward y right
+    Punto up = right.cross(forward).normalized(); // Producto cruz y normalización
+    
+    // Calcular el tamaño de los píxeles en el plano del viewport
+    double pixelWidth = horizontalSize / width;
+    double pixelHeight = verticalSize / height;
+    
+    // Calcular los rayos para cada píxel del viewport
+    for (int i = 0; i < height; i++) {
+        rayos[i] = new Ray[width];
+        for (int j = 0; j < width; j++) {
+            // Calcular la posición del píxel en el plano del viewport
+            double x = (j - width / 2) * pixelWidth;
+            double y = (i - height / 2) * pixelHeight;
+            
+            // Calcular la dirección del rayo que pasa por el píxel
+            Punto rayDirection = forward + right * x + up * y;
+            
+            // Crear el punto de origen del rayo (0,0,0)
+            Punto rayOrigin(0, 0, 0);
+
+            Ray r;
+            r.origen = rayOrigin;
+            r.direccion = rayDirection.normalized();
+            
+            // Asignar el rayo al arreglo de rayos
+            rayos[i][j] = r; // Normalizar el vector
         }
     }
-    return rayos;
+    
+   return rayos;
 }

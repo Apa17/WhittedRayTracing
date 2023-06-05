@@ -3,13 +3,24 @@
 #include "Escena.h"
 #include <tuple>
 #include "Render.h"
+#include "Camara.h"
+#include "Punto.h"
+#include "Esfera.h"
+
+#define ANCHO 1920;
+#define ALTO 1080;
 
 using namespace std;
+
 using h_w_color = std::vector<std::vector<std::tuple<double, double, double, double>>>;
 using w_color = std::vector<std::tuple<double, double, double, double>>;
+using color = std::tuple<double, double, double, double>;
 
-double verticalSize = 5;
-double horizontalSize = 5;
+double verticalSize = 1.080;
+double horizontalSize = 1.920;
+
+Camara camara(Punto(0, 0, 0), Punto(0, 1, 0), Punto(0, 0, -1), verticalSize, horizontalSize); //replace this
+Esfera esfera(2, Punto(0, 0, -10), color(163.0, 163.0, 163.0, 1.0)); //replace this
 
 /*tuple<double, double, double, double> escalarColor(tuple<double, double, double, double> color, tuple<double, double, double, double> alpha) {
 	return tuple<double, double, double, double>(std::get<0>(color) * (std::get<0>(alpha) / 255.0),
@@ -17,22 +28,28 @@ double horizontalSize = 5;
 		std::get<3>(color));
 }*/
 
+color traza_rr(Ray ray, int depth){
+	std::pair<bool, Punto> colision = esfera.chequear_colision(ray);
+	if(colision.first){
+		return esfera.getColor();
+	} else {
+		return color(0.0, 0.0, 0.0, 1.0);
+	}
+}
+
 h_w_color render() {
-	int altura = 500; //i
-	int ancho = 500; //j
+	int altura = ALTO; //i
+	int ancho = ANCHO; //j
 	h_w_color color(
-		500,
-		w_color(500, tuple<double, double, double, double>(0.0, 0.0, 0.0, 1.0)));
-	
+		altura,
+		w_color(ancho, tuple<double, double, double, double>(0.0, 0.0, 0.0, 1.0)));
+	Ray** rayos = camara.getRays(ancho, altura);
 	for (int i = 0; i < altura; i++) {
 		for (int j = 0; j < ancho; j++) {
 			double incrementoI = (-i - 1) * (verticalSize / altura);
 			double incrementoJ = (j + 1) * (horizontalSize / ancho);
-
-			// Punto* dirRayo = (new Punto(cam->getcenterOfViewPlane()->getX(), (cam->getverticalSize() / 2) + incrementoI - (cam->getverticalSize() / (altura * 2)), (-cam->gethorizontalSize() / 2) + incrementoJ - (cam->gethorizontalSize() / (ancho * 2))))->sub(cam->getposCamara()); //el 6 corresponde a la distancia en x de posCamara y planoVista. Restar posCamara.
-			//Ray* rayo = new Ray(cam->getposCamara(), dirRayo);
-			////std::cout << rayo->getdirection()->getX() << endl;
-			//color[i][j] = traza_rr(rayo, 1);
+			Ray ray = rayos[i][j];
+			color[i][j] = traza_rr(ray, 1);
 		}
 	}
 	return color;
@@ -57,6 +74,8 @@ int main() {
 	//e.render();
 
 	//renderizar y guardar en png
-	h_w_color testPixels = render();
-	return renderizar(500, 500, testPixels);
+	int ancho = ANCHO;
+	int alto = ALTO;
+	h_w_color pixels = render();
+	return renderizar(alto, ancho, pixels);
 }

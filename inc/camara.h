@@ -1,6 +1,7 @@
 #ifndef CAMARA_H
 #define CAMARA_H
 #include "punto.h"
+#include "../inc/ray.h"
 
 class Camara {
     private:
@@ -17,7 +18,7 @@ class Camara {
         double getVerticalSize();
         double getHorizontalSize();
         double getDistanceToViewPlane();
-        Punto** getRays(int width, int height);
+        Ray** getRays(int width, int height);
 };
 
 #endif

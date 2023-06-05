@@ -1,4 +1,5 @@
 #include "../inc/punto.h"
+#include <math.h>
 
 Punto::Punto() {
     this->x=0;
@@ -48,4 +49,16 @@ double Punto::operator*(Punto p) {
 
 Punto Punto::operator*(double d) {
     return Punto(x*d, y*d, z*d);
+}
+
+bool Punto::operator==(Punto p) {
+    return x==p.getX() && y==p.getY() && z==p.getZ();
+}
+
+Punto Punto::cross(Punto p) {
+    return Punto(y*p.getZ()-z*p.getY(), z*p.getX()-x*p.getZ(), x*p.getY()-y*p.getX());
+}
+
+Punto Punto::normalized() {
+    return Punto(x/sqrt(norma_al_cuadrado), y/sqrt(norma_al_cuadrado), z/sqrt(norma_al_cuadrado));
 }

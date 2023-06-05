@@ -12,20 +12,20 @@ using namespace std;
 
 #define BPP 24
 
-int renderizar(int h, int v, std::vector<std::vector<std::tuple<double, double, double, double>>> c, string nombreAGuardar) {
+int renderizar(int h, int w, std::vector<std::vector<std::tuple<double, double, double, double>>> c, string nombreAGuardar) {
 	FreeImage_Initialise();
-	FIBITMAP* bitmap = FreeImage_Allocate(h, v, BPP);
+	FIBITMAP* bitmap = FreeImage_Allocate(w, h, BPP);
 	RGBQUAD color;
 	if (!bitmap)
-		return -1;
+		return -2;
 	//set pixels
 	for (int i = 0; i < h; i++) {
-		for (int j = 0; j < v; j++) {
-			color.rgbRed = (BYTE)std::get<0>(c[v-1-j][i]);
-			color.rgbGreen = (BYTE)std::get<1>(c[v-1-j][i]);
-			color.rgbBlue = (BYTE)std::get<2>(c[v-1-j][i]);
+		for (int j = 0; j < w; j++) {
+			color.rgbRed = (BYTE)std::get<0>(c[i][j]);
+			color.rgbGreen = (BYTE)std::get<1>(c[i][j]);
+			color.rgbBlue = (BYTE)std::get<2>(c[i][j]);
 			//falta calcular como afecta el a de RGBA a RGB porque RGB
-			FreeImage_SetPixelColor(bitmap, i, j, &color);
+			FreeImage_SetPixelColor(bitmap, j, i, &color);
 		}
 	}
 	//create directory
@@ -35,17 +35,17 @@ int renderizar(int h, int v, std::vector<std::vector<std::tuple<double, double, 
 	string timeanddate = auxiliar.str();
 
 	//cout << _mkdir(directorio.c_str()) << endl; //imprime 0 si crea el directorio
-	string directorio = "../output/" + timeanddate;
-	if (_mkdir(directorio.c_str()) != 0) {
-		return -1;
-	}
+	string directorio = "../output/";
+	/*if (_mkdir(directorio.c_str()) != 0) {
+		return -3;
+	}*/
 	//save img
-	string fileSaveLocation = directorio + "/" + nombreAGuardar + ".png";
-	//cout << fileSaveLocation;
+	string fileSaveLocation = directorio + "/" + timeanddate + ".png";
+	cout << fileSaveLocation;
 	if (FreeImage_Save(FIF_PNG, bitmap, fileSaveLocation.c_str(), 0)){
 		std::cout << "Imagesuccessfully saved !" << std::endl;
 	}else{
-		return -1;
+		return -4;
 	}
 	FreeImage_DeInitialise(); // Cleanup !
 	return 0;
