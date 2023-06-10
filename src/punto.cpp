@@ -62,3 +62,7 @@ Punto Punto::cross(Punto p) {
 Punto Punto::normalized() {
     return Punto(x/sqrt(norma_al_cuadrado), y/sqrt(norma_al_cuadrado), z/sqrt(norma_al_cuadrado));
 }
+#include <iostream>
+double distancia_entre_punto_al_cuadrado(Punto p1, Punto p2){
+    return (p1 - p2).getNorma_al_cuadrado();
+}

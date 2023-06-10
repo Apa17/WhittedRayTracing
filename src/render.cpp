@@ -21,9 +21,9 @@ int renderizar(int h, int w, std::vector<std::vector<std::tuple<double, double, 
 	//set pixels
 	for (int i = 0; i < h; i++) {
 		for (int j = 0; j < w; j++) {
-			color.rgbRed = (BYTE)std::get<0>(c[i][j]);
-			color.rgbGreen = (BYTE)std::get<1>(c[i][j]);
-			color.rgbBlue = (BYTE)std::get<2>(c[i][j]);
+			color.rgbRed = (BYTE)(std::get<0>(c[i][j]));
+			color.rgbGreen = (BYTE)(std::get<1>(c[i][j]));
+			color.rgbBlue = (BYTE)(std::get<2>(c[i][j]));
 			//falta calcular como afecta el a de RGBA a RGB porque RGB
 			FreeImage_SetPixelColor(bitmap, j, i, &color);
 		}

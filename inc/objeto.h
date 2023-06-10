@@ -14,7 +14,7 @@ class Objeto {
 		double getindRefrac();
 		color getColor();
 	protected:
-		color Colour;
+		color colour;
 		double coefReflex;
 		double coefTransm;
 		double indRefrac;

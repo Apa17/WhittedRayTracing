@@ -23,4 +23,6 @@ class Punto {
 		double getY();
 		double getZ();
 };
+
+double distancia_entre_punto_al_cuadrado(Punto p1, Punto p2);
 #endif

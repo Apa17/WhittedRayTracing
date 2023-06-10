@@ -6,46 +6,48 @@
 #include "Camara.h"
 #include "Punto.h"
 #include "Esfera.h"
+#include "Luz.h"
+#include "color.h"
 
-#define ANCHO 1920;
-#define ALTO 1080;
-
-using namespace std;
-
-using h_w_color = std::vector<std::vector<std::tuple<double, double, double, double>>>;
-using w_color = std::vector<std::tuple<double, double, double, double>>;
-using color = std::tuple<double, double, double, double>;
-
-double verticalSize = 1.080;
-double horizontalSize = 1.920;
+#define ANCHO 500;
+#define ALTO 500;
+double verticalSize = 1;
+double horizontalSize = 1;
 
 Camara camara(Punto(0, 0, 0), Punto(0, 1, 0), Punto(0, 0, -1), verticalSize, horizontalSize); //replace this
-Esfera esfera(2, Punto(0, 0, -10), color(163.0, 163.0, 163.0, 1.0), 1.0, 0.0, 1.0); //replace this
-Punto* luces;
+Esfera esfera(1, Punto(0, 0, -5), color(0.6, 0.6, 0.6, 1.0), 1.0, 0.0, 1.0); //replace this
+Luz* luces;
+color ia = color(0.1, 0.1, 0.1, 1.0);
+double ka = 1;
+double kd = 1;
 int cantLuces;
-
-/*tuple<double, double, double, double> escalarColor(tuple<double, double, double, double> color, tuple<double, double, double, double> alpha) {
-	return tuple<double, double, double, double>(std::get<0>(color) * (std::get<0>(alpha) / 255.0),
-		std::get<1>(color) * (std::get<1>(alpha) / 255.0), std::get<2>(color) * (std::get<2>(alpha) / 255.0),
-		std::get<3>(color));
-}*/
 
 color sombra_rr(Objeto& o, Ray r, Punto interseccion, Punto normal, int depth){
 	// color = término del ambiente;
-	color c = color(0.1, 0.1, 0.1, 1.0);
+	color c = ia;
 	for(int i =0; i< cantLuces; i++){ // for (cada luz) {
 		//	rayo_s = rayo desde el punto a la luz;
 		Ray rayo_s;
 		rayo_s.origen = interseccion;
-		rayo_s.direccion = (luces[i] - interseccion).normalized();
-		if (normal * rayo_s.direccion > 0) { //if(normal * (Punto(0,0,0)-rayo_s.direccion) > 0){ if (producto punto entre normal y dirección de la luz es positivo) {
-			//calcular cuánta luz es bloqueada por sup. opacas y transp., y
-			//usarlo para escalar los términos difusos y especulares antes de
-			//añadirlos a color;
-			//TODO
+		rayo_s.direccion = (luces[i].posicion - interseccion).normalized();
+		double NxL = normal * rayo_s.direccion;
+		if (NxL > 0) { //if(normal * (Punto(0,0,0)-rayo_s.direccion) > 0){ if (producto punto entre normal y dirección de la luz es positivo) {
+			// TODO COLISIONES CON OBJETOS ENTRE LA INTERSECCION DEL OBJETO Y LUZ
+			double dl2 = distancia_entre_punto_al_cuadrado(interseccion, luces[i].posicion);
+			double b = 0.01;
+			double fatt = 1/(b*dl2);
+			//std::cout << fatt << std::endl;
+			color ip = luces[i].colour;
+			// TODO LUZ ESPECULAR
+			// std::cout << sqrt(dl2) << std::endl;
+			c = sumar_color(c, multiplicar_color(multiplicar_color(multiplicar_color(ip,fatt),kd),NxL));
 		}
 	}
-	return color(0.0, 0.0, 0.0, 1.0);
+	c = normalizar_color(c);
+	//std::cout << std::get<0>(c) << " " <<std::get<1>(c) << " " << std::get<2>(c) << std::endl;
+	c = multiplicar_color(c, o.getColor());
+	// std::cout << std::get<0>(c) << " " << std::get<1>(c) << " " << std::get<2>(c) << std::endl;
+	return c;
 }
 
 color traza_rr(Ray ray, int depth){
@@ -55,6 +57,7 @@ color traza_rr(Ray ray, int depth){
 		Punto normal = esfera.getNormal(colision.second);
 		// return sombra_RR(obj. intersecado más cercano, rayo, intersección, normal, profundidad);
 		return sombra_rr(esfera, ray, colision.second, normal, depth);
+		//return color(0.6, 0.6, 0.6, 1.0);
 	} else {
 		return color(0.0, 0.0, 0.0, 1.0);
 	}
@@ -72,7 +75,7 @@ h_w_color render() {
 			double incrementoI = (-i - 1) * (verticalSize / altura);
 			double incrementoJ = (j + 1) * (horizontalSize / ancho);
 			Ray ray = rayos[i][j];
-			color[i][j] = traza_rr(ray, 1);
+			color[i][j] = multiplicar_color(traza_rr(ray, 1), 255);
 		}
 	}
 	return color;
@@ -80,9 +83,10 @@ h_w_color render() {
 
 
 int main() {
-	luces = new Punto[2];
-	luces[0] = Punto(1, 0, 1);
-	luces[1] = Punto(-1, 0, -1);
+	luces = new Luz[2];
+	luces[0] = Luz(Punto(0, 0, 1), color(1.0, 1.0, 1.0, 1.0));
+	luces[1] = Luz(Punto(0, 0, -1), color(1.0, 1.0, 1.0, 1.0));
+	cantLuces = 2;
 	/*cout << "Ingresar nombre del archivo" << endl;
 	cin >> s;
 	if (s == "0") {

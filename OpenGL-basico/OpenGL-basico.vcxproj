@@ -83,9 +83,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\inc\camara.h" />
+    <ClInclude Include="..\inc\color.h" />
     <ClInclude Include="..\inc\escena.h" />
     <ClInclude Include="..\inc\esfera.h" />
     <ClInclude Include="..\inc\FreeImage.h" />
+    <ClInclude Include="..\inc\luz.h" />
     <ClInclude Include="..\inc\objeto.h" />
     <ClInclude Include="..\inc\punto.h" />
     <ClInclude Include="..\inc\ray.h" />
@@ -98,6 +100,7 @@
     <ClCompile Include="..\src\escena.cpp" />
     <ClCompile Include="..\src\esfera.cpp" />
     <ClCompile Include="..\src\main.cpp" />
+    <ClCompile Include="..\src\objeto.cpp" />
     <ClCompile Include="..\src\punto.cpp" />
     <ClCompile Include="..\src\ray.cpp" />
     <ClCompile Include="..\src\render.cpp" />

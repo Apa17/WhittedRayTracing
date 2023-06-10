@@ -13,5 +13,5 @@ double Objeto::getindRefrac() {
 }
 
 color Objeto::getColor() {
-    return this->Colour;
+    return this->colour;
 }

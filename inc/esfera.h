@@ -10,7 +10,6 @@ class Esfera : public Objeto {
 	private:
 		double radio;
 		Punto centro;
-		color colour;
 	public:
 		Esfera(double radio, Punto centro, color colour, double coefReflex, double coefTransm, double indRefrac);
 		std::pair<bool, Punto> chequear_colision(Ray rayo);
