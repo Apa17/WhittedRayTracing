@@ -1,5 +1,6 @@
 #ifndef PUNTO_H
 #define PUNTO_H
+#include <iostream>
 
 class Punto {
 	private:
@@ -16,12 +17,14 @@ class Punto {
 		double operator*(Punto d);
 		Punto operator*(double d);
 		bool operator==(Punto p);
+		Punto operator/(double d);
 		Punto cross(Punto p);
 		Punto normalized();
 		double getNorma_al_cuadrado();
 		double getX();
 		double getY();
 		double getZ();
+		friend std::ostream& operator<<(std::ostream& os, Punto p);
 };
 
 double distancia_entre_punto_al_cuadrado(Punto p1, Punto p2);

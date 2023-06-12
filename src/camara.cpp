@@ -54,6 +54,7 @@ Ray** Camara::getRays(int width, int height) {
             Ray r;
             r.origen = rayOrigin;
             r.direccion = rayDirection.normalized();
+            r.indRefrac = 1.0;
             
             // Asignar el rayo al arreglo de rayos
             rayos[i][j] = r; // Normalizar el vector
