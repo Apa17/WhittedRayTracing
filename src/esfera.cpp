@@ -6,7 +6,6 @@ Esfera::Esfera(double radio, Punto centro, color colour, double coefReflex, doub
     this->centro = centro;
     this->colour = colour;
     this->coefReflex = coefReflex;
-    this->coefTransm = coefTransm;
     this->indRefrac = indRefrac;
 }
 

@@ -15,9 +15,9 @@ class Objeto {
 		color getColor();
 	protected:
 		color colour;
-		double coefReflex;
-		double coefTransm;
-		double indRefrac;
+		double coefReflex; // coeficiente de reflexión
+		double coefTransm; // coeficiente de transmisión
+		double indRefrac; // índice de refracción
 
 };
 

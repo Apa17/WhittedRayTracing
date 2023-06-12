@@ -20,6 +20,7 @@ Luz* luces;
 color ia = color(0.1, 0.1, 0.1, 1.0);
 double ka = 1;
 double kd = 1;
+int depth_max = 3;
 int cantLuces;
 
 color sombra_rr(Objeto& o, Ray r, Punto interseccion, Punto normal, int depth){
@@ -43,10 +44,37 @@ color sombra_rr(Objeto& o, Ray r, Punto interseccion, Punto normal, int depth){
 			c = sumar_color(c, multiplicar_color(multiplicar_color(multiplicar_color(ip,fatt),kd),NxL));
 		}
 	}
+	
+	if(depth < depth_max){
+		color color_r;
+		if(o.getcoefReflex() > 0){
+			//r, n
+			Ray rayo_r;
+			rayo_r.origen = interseccion;
+			double angulo_incidencia = acos(normal.normalized() * r.direccion.normalized()); 
+			Punto nNormalizado = normal.normalized();
+			double NxL = normal.normalized() * r.direccion.normalized();
+			// rayo_r = rayo en la dirección de reflexión desde punto;
+			rayo_r.direccion = (nNormalizado * 2 * NxL) - r.direccion;
+			color_r = traza_rr(rayo_r, depth + 1);
+			// TODO
+			// escalar color_r por el coeficiente especular y añadir al color;  
+		}
+		color color_t;
+		// if(o.getcoefTransm() > 0){
+		// 	if (no ocurre la reflexión interna total) {
+		// 		// rayo_t = rayo en la dirección de refracción desde punto;
+		// 		Ray rayo_t;
+		// 		rayo_t.origen = interseccion;
+		// 		rayo_t.direccion = 
+		// 		color_t = traza_RR (rayo_t, profundidad + 1);
+		// 		escalar color_t por el coeficiente de transmisión y
+		// 		añadir a color;
+		// 	}
+		// }
+	}
 	c = normalizar_color(c);
-	//std::cout << std::get<0>(c) << " " <<std::get<1>(c) << " " << std::get<2>(c) << std::endl;
 	c = multiplicar_color(c, o.getColor());
-	// std::cout << std::get<0>(c) << " " << std::get<1>(c) << " " << std::get<2>(c) << std::endl;
 	return c;
 }
 
