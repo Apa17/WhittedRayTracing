@@ -12,6 +12,10 @@ double Objeto::getindRefrac() {
     return this->indRefrac;
 }
 
-color Objeto::getColor() {
-    return this->colour;
+color Objeto::getColorDifuso() {
+    return this->colorDifuso;
+}
+
+color Objeto::getColorEspecular() {
+    return this->colorEspecular;
 }

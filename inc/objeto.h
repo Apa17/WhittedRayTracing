@@ -12,13 +12,14 @@ class Objeto {
 		double getcoefReflex();
 		double getcoefTransm();
 		double getindRefrac();
-		color getColor();
+		color getColorDifuso();
+		color getColorEspecular();
 	protected:
-		color colour;
+		color colorDifuso;
+		color colorEspecular;
 		double coefReflex; // coeficiente de reflexión
 		double coefTransm; // coeficiente de transmisión
 		double indRefrac; // índice de refracción
-
 };
 
 #endif

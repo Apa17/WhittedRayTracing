@@ -11,7 +11,7 @@ class Esfera : public Objeto {
 		double radio;
 		Punto centro;
 	public:
-		Esfera(double radio, Punto centro, color colour, double coefReflex, double coefTransm, double indRefrac);
+		Esfera(double radio, Punto centro, color colorDifuso, color colorEspecular, double coefReflex, double coefTransm, double indRefrac);
 		std::pair<bool, Punto> chequear_colision(Ray rayo);
 		Punto getNormal(Punto punto);
 		color getColor();
