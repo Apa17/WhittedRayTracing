@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <chrono>
 #include <sstream>
+#include "../inc/color.h"
 
 using namespace std;
 #pragma warning(disable : 4996)
@@ -12,7 +13,7 @@ using namespace std;
 
 #define BPP 24
 
-int renderizar(int h, int w, std::vector<std::vector<std::tuple<double, double, double, double>>> c, string nombreAGuardar) {
+int renderizar(int h, int w, h_w_color c, string nombreAGuardar) {
 	FreeImage_Initialise();
 	FIBITMAP* bitmap = FreeImage_Allocate(w, h, BPP);
 	RGBQUAD color;
@@ -21,9 +22,9 @@ int renderizar(int h, int w, std::vector<std::vector<std::tuple<double, double, 
 	//set pixels
 	for (int i = 0; i < h; i++) {
 		for (int j = 0; j < w; j++) {
-			color.rgbRed = (BYTE)(std::get<0>(c[i][j]));
-			color.rgbGreen = (BYTE)(std::get<1>(c[i][j]));
-			color.rgbBlue = (BYTE)(std::get<2>(c[i][j]));
+			color.rgbRed = (BYTE)(c[i][j].get_r() * 255);
+			color.rgbGreen = (BYTE)(c[i][j].get_g() * 255);
+			color.rgbBlue = (BYTE)(c[i][j].get_b() * 255);
 			//falta calcular como afecta el a de RGBA a RGB porque RGB
 			FreeImage_SetPixelColor(bitmap, j, i, &color);
 		}

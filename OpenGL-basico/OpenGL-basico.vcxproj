@@ -97,6 +97,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\camara.cpp" />
+    <ClCompile Include="..\src\color.cpp" />
     <ClCompile Include="..\src\escena.cpp" />
     <ClCompile Include="..\src\esfera.cpp" />
     <ClCompile Include="..\src\main.cpp" />

@@ -3,8 +3,8 @@
 
 #include "ray.h"
 #include "punto.h"
+#include "color.h"
 #include <tuple>
-using color = std::tuple<double, double, double, double>;
 class Objeto {
 	public: 
 		virtual std::pair<bool, Punto> chequear_colision(Ray rayo) = 0;
@@ -12,11 +12,11 @@ class Objeto {
 		double getcoefReflex();
 		double getcoefTransm();
 		double getindRefrac();
-		color getColorDifuso();
-		color getColorEspecular();
+		Color getColorDifuso();
+		Color getColorEspecular();
 	protected:
-		color colorDifuso;
-		color colorEspecular;
+		Color colorDifuso;
+		Color colorEspecular;
 		double coefReflex; // coeficiente de reflexión
 		double coefTransm; // coeficiente de transmisión
 		double indRefrac; // índice de refracción

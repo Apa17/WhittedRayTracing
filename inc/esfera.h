@@ -4,16 +4,15 @@
 #include "objeto.h"
 #include "punto.h"
 #include <tuple>
-using color = std::tuple<double, double, double, double>;
 
 class Esfera : public Objeto {
 	private:
 		double radio;
 		Punto centro;
 	public:
-		Esfera(double radio, Punto centro, color colorDifuso, color colorEspecular, double coefReflex, double coefTransm, double indRefrac);
+		Esfera(double radio, Punto centro, Color colorDifuso, Color colorEspecular, double coefReflex, double coefTransm, double indRefrac);
 		std::pair<bool, Punto> chequear_colision(Ray rayo);
 		Punto getNormal(Punto punto);
-		color getColor();
+		Color getColor();
 };
 #endif 
