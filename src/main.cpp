@@ -10,15 +10,15 @@
 #include "Luz.h"
 #include "color.h"
 
-// #define ANCHO 500; //para probar
-// #define ALTO 500;
-// double horizontalSize = 1;
-// double verticalSize = 1;
+#define ANCHO 500; //para probar
+#define ALTO 500;
+double horizontalSize = 1;
+double verticalSize = 1;
 
-#define ANCHO 1920; //full hd
-#define ALTO 1080;
-double horizontalSize = 1.920;
-double verticalSize = 1.080;
+// #define ANCHO 1920; //full hd
+// #define ALTO 1080;
+// double horizontalSize = 1.920;
+// double verticalSize = 1.080;
 
 // #define ANCHO 3840; //4k
 // #define ALTO 2160;
@@ -41,13 +41,14 @@ int jglobal;
 
 Color traza_rr(Ray ray, int depth);
 
-Color sombra_rr(Objeto* o, Ray r, Punto interseccion, Punto normal, int depth){
+Color sombra_rr(int id, Ray r, Punto interseccion, Punto normal, int depth){
 	// Rayo vista = r.origen
 	// Ri = vector reflejado
 	// Os lambda el color del objeto (color especular)
 	// Od lambda el color del objeto (color difuso)
 	// Ip color de la fuente de luz??? // TODO Preguntar profe por las dudas
 	// color = término del ambiente;
+	Objeto * o = objetos[id];
 	Color c = ia * o->getColorDifuso();
 	Punto nNormalizado = normal.normalized();
 	for(int i =0; i< cantLuces; i++) { // for (cada luz) {
@@ -56,6 +57,7 @@ Color sombra_rr(Objeto* o, Ray r, Punto interseccion, Punto normal, int depth){
 		rayo_s.origen = interseccion + nNormalizado * 0.0001;
 		rayo_s.indRefrac = r.indRefrac;
 		rayo_s.direccion = (luces[i].posicion - interseccion).normalized();
+		rayo_s.objetos = r.objetos;
 		double NxL = nNormalizado * rayo_s.direccion;
 		if (NxL > 0) {
 			Color luz_visible = Color(1, 1, 1);
@@ -104,14 +106,51 @@ Color sombra_rr(Objeto* o, Ray r, Punto interseccion, Punto normal, int depth){
 			rayo_r.origen = interseccion + normal.normalized() * 0.0001;
 			rayo_r.indRefrac = r.indRefrac;
 			rayo_r.direccion = (nNormalizado * 2 * NxV) - V;
+			rayo_r.objetos = r.objetos;
 			color_r = traza_rr(rayo_r, depth + 1);
 			color_r = color_r * o->getcoefReflex(); // escalar color_r por el coeficiente especular y añadir al color;
 		}
 		if(o->getcoefTransm() > 0){
 			double n1 = r.indRefrac;
-			double n2 = o->getindRefrac();
+			double n2;
+			int aux;
+			int *objetos_nuevo = new int[2];
+			if (r.objetos[0] == id)
+				aux = 1;
+			else 
+				aux = 0;
+			// Si estoy saliendo de un objeto me fijo si ya estaba en otro objeto antes y me
+			// quedo con su indice de refraccion, sino me quedo con el del aire
+			if (angulo_incidencia < 0){
+				if ((r.objetos[aux] != -1)){
+					n2 = objetos[r.objetos[aux]]->getindRefrac();
+				}
+				else {
+					n2 = 1;
+				}
+				objetos_nuevo[0] = r.objetos[aux];
+				objetos_nuevo[1] = -1;
+			}
+			// Si estoy entrando me quedo con el indice del objeto.
+			else {
+				n2 = o->getindRefrac();
+				if (r.objetos[0] != -1){
+					objetos_nuevo[0] = r.objetos[0];
+					objetos_nuevo[1] = id;
+				}
+				else if (r.objetos[1] != -1) {
+					objetos_nuevo[0] = r.objetos[1];
+					objetos_nuevo[1] = id;
+				}
+				else{
+					objetos_nuevo[0] = -1;
+					objetos_nuevo[1] = id;
+				} 
+			}
 			double thetac = asin(n1/n2);
-			if (iglobal == 800 && jglobal == 720) {
+			if (iglobal == 250 && jglobal == 250) {
+				std::cout << "	n1: " << n1 << std::endl;
+				std::cout << "	n2: " << n2 << std::endl;
 				std::cout << "	angulo incidencia: " << angulo_incidencia << std::endl;
 				std::cout << "	thetac: " << thetac << std::endl;
 				bool condicion = angulo_incidencia < thetac;
@@ -130,7 +169,7 @@ Color sombra_rr(Objeto* o, Ray r, Punto interseccion, Punto normal, int depth){
 				Punto lado_izq_ecua = normal * -1 * cos(thetat);
 				Punto lado_der_ecua = G * sin(thetat);
 				rayo_t.direccion = lado_izq_ecua - lado_der_ecua;
-				if (iglobal == 800 && jglobal == 720) {
+				if (iglobal == 250 && jglobal == 250) {
 					std::cout << "	interseccion: " << interseccion << std::endl;
 					std::cout << "	r.direccion.normalized(): " << r.direccion.normalized() << std::endl;
 					std::cout << "	normal.normalized()" << normal.normalized() << std::endl;
@@ -146,6 +185,7 @@ Color sombra_rr(Objeto* o, Ray r, Punto interseccion, Punto normal, int depth){
 					std::cout << "	G: " << G << std::endl;
 				}
 				rayo_t.indRefrac = n2;
+				rayo_t.objetos = objetos_nuevo;
 				color_t = traza_rr (rayo_t, depth + 1);
 				color_t = color_t * o->getcoefTransm(); // escalar color_t por el coeficiente de transmisión y añadir a color;				
 			}
@@ -155,6 +195,7 @@ Color sombra_rr(Objeto* o, Ray r, Punto interseccion, Punto normal, int depth){
 	// c = sumar_color(c, color_r);
 	c = c * (1 - o->getcoefTransm()) + color_t;
 	c = c.normalizar_color();
+	delete [] r.objetos;
 	return c;
 }
 
@@ -189,7 +230,7 @@ Color traza_rr(Ray ray, int depth){
 		//calcular la normal en la intersección;
 		Punto normal = objetos[id]->getNormal(colision_id.second);
 		// return sombra_RR(obj. intersecado más cercano, rayo, intersección, normal, profundidad);
-		return sombra_rr(objetos[id], ray, colision_id.second, normal, depth);
+		return sombra_rr(id, ray, colision_id.second, normal, depth);
 		//return color(0.6, 0.6, 0.6, 1.0);
 	} else {
 		return Color(0.0, 0.0, 0.0);

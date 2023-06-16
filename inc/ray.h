@@ -7,5 +7,6 @@ struct Ray {
 	Punto origen;
 	Punto direccion;
 	double indRefrac;
+	int *objetos;
 };
 #endif
