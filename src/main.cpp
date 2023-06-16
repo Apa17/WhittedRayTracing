@@ -6,6 +6,7 @@
 #include "Camara.h"
 #include "Punto.h"
 #include "Esfera.h"
+#include "Cilindro.h"
 #include "Luz.h"
 #include "color.h"
 
@@ -150,8 +151,7 @@ Color sombra_rr(Objeto* o, Ray r, Punto interseccion, Punto normal, int depth){
 		}
 	}
 	// TODO PREGUNTAR PROFE
-	// c = sumar_color(c, color_r);
-	// c = sumar_color(c, color_t);
+	c = c + color_r + color_t;
 	c = c.normalizar_color();
 	return c;
 }
@@ -217,15 +217,16 @@ h_w_color render() {
 
 int main() {
 	luces = new Luz[1];
-	luces[0] = Luz(Punto(-4, 1, -3), Color(1.0, 1.0, 1.0));
-	luces[1] = Luz(Punto(4, 1, -3), Color(1.0, 1.0, 1.0));
+	luces[0] = Luz(Punto(0, 1.0, 2), Color(1.0, 1.0, 1.0));
+	luces[1] = Luz(Punto(0, 3.0, 2), Color(1.0, 1.0, 1.0));
 	cantLuces = 2;
-	Esfera esfera = Esfera(1, Punto(0, 0, -3), Color(1, 1, 1), Color(1, 1, 1), 0.0, 0.0, 1.5); //replace this
-	// Esfera esfera2 = Esfera(0.5, Punto(0, 0, -3), Color(1.0, 0.0, 0.0), Color(1.0, 0.0, 0.0), 0.0, 0.0, 1.5); //replace this
-	cantObjetos = 1;
+	//Cilindro cilindro = Cilindro(0.5, 3.0, Punto(0.0, 0.0, -3.0), Punto(0.0, 1.0, 0.0), Color(1.0, 1.0, 1.0), Color(1.0, 1.0, 1.0), 0.0, 0.0, 1.5); //replace this
+	Esfera esfera = Esfera(1, Punto(1, -1, -5), Color(1, 1, 1), Color(1, 1, 1), 0, 0.0, 1.5); //replace this
+	Esfera esfera2 = Esfera(0.3, Punto(1, -1, -3), Color(0.05, 0.0, 0.0), Color(0.5, 0.0, 0.0), 0.0, 1, 1.5); //replace this
+	cantObjetos = 2;
 	objetos = new Objeto*[cantObjetos];
 	objetos[0] = &esfera;
-	// objetos[1] = &esfera2;
+	objetos[1] = &esfera2;
 	/*cout << "Ingresar nombre del archivo" << endl;
 	cin >> s;
 	if (s == "0") {
