@@ -33,6 +33,7 @@ Color ia = Color(0.2, 0.2, 0.2);
 double ka = 1;
 double kd = 0.5;
 double ks = 0.5;
+double kt = 0.5;
 int depth_max = 7;
 int cantLuces;
 int iglobal;
@@ -52,16 +53,17 @@ Color sombra_rr(Objeto* o, Ray r, Punto interseccion, Punto normal, int depth){
 	for(int i =0; i< cantLuces; i++) { // for (cada luz) {
 		//	rayo_s = rayo desde el punto a la luz;
 		Ray rayo_s;
-		rayo_s.origen = interseccion;
+		rayo_s.origen = interseccion + nNormalizado * 0.0001;
 		rayo_s.indRefrac = r.indRefrac;
 		rayo_s.direccion = (luces[i].posicion - interseccion).normalized();
 		double NxL = nNormalizado * rayo_s.direccion;
-		if (NxL > 0) { //if(normal * (Punto(0,0,0)-rayo_s.direccion) > 0){ if (producto punto entre normal y dirección de la luz es positivo) {
-			// TODO cambiar esto
+		if (NxL > 0) {
 			Color luz_visible = Color(1, 1, 1);
+			bool luz_visible_bool = true;
 			for(int j = 0; j < cantObjetos; j++){
 				if(objetos[j]->chequear_colision(rayo_s).first && objetos[j] != o){
 					luz_visible = luz_visible * objetos[j]->getcoefTransm() * objetos[j]->getColorDifuso();
+					luz_visible_bool = false;
 					if(objetos[j]->getcoefTransm() == 0){
 						break;
 					}
@@ -79,7 +81,6 @@ Color sombra_rr(Objeto* o, Ray r, Punto interseccion, Punto normal, int depth){
 				std::cout << "		ip: " << ip << std::endl;
 				std::cout << "		color con ambiente y difusa: " << c << std::endl;
 			}
-			// double x = rayo_s.direccion.normalized() * r.direccion.normalized();
 			Punto V = (r.direccion.normalized() * - 1);
 			Punto R = (nNormalizado * 2 * NxL) - rayo_s.direccion.normalized();
 			double cosalfa = R * V;
@@ -151,7 +152,8 @@ Color sombra_rr(Objeto* o, Ray r, Punto interseccion, Punto normal, int depth){
 		}
 	}
 	// TODO PREGUNTAR PROFE
-	c = c + color_r + color_t;
+	// c = sumar_color(c, color_r);
+	c = c * (1 - o->getcoefTransm()) + color_t;
 	c = c.normalizar_color();
 	return c;
 }
@@ -217,16 +219,20 @@ h_w_color render() {
 
 int main() {
 	luces = new Luz[1];
-	luces[0] = Luz(Punto(0, 1.0, 2), Color(1.0, 1.0, 1.0));
-	luces[1] = Luz(Punto(0, 3.0, 2), Color(1.0, 1.0, 1.0));
+	luces[0] = Luz(Punto(1, 1, 0), Color(1.0, 1.0, 1.0));
+	luces[1] = Luz(Punto(1, 1, 0), Color(1.0, 1.0, 1.0));
 	cantLuces = 2;
-	//Cilindro cilindro = Cilindro(0.5, 3.0, Punto(0.0, 0.0, -3.0), Punto(0.0, 1.0, 0.0), Color(1.0, 1.0, 1.0), Color(1.0, 1.0, 1.0), 0.0, 0.0, 1.5); //replace this
-	Esfera esfera = Esfera(1, Punto(1, -1, -5), Color(1, 1, 1), Color(1, 1, 1), 0, 0.0, 1.5); //replace this
-	Esfera esfera2 = Esfera(0.3, Punto(1, -1, -3), Color(0.05, 0.0, 0.0), Color(0.5, 0.0, 0.0), 0.0, 1, 1.5); //replace this
+	// Esfera esfera = Esfera(0.5, Punto(-1, 0, -3), Color(0.0, 1.0, 0.0), Color(0.0, 1.0, 0.0), 1.0, 0.0, 1.5); //verde refractiva 100%
+	// Esfera esfera2 = Esfera(0.5, Punto(0, 1, -3), Color(1.0, 0.0, 0.0), Color(1.0, 0.0, 0.0), 0.5, 0.5, 1.5); //roja mitad refractiva mitad transmitiva
+	// Esfera esfera3 = Esfera(0.5, Punto(1, 0, -3), Color(0.0, 0.0, 1.0), Color(0.0, 0.0, 1.0), 0.0, 1.0, 1.5); //azul transmitiva 100%
+	Esfera esfera = Esfera(0.5, Punto(0, 0, -2), Color(0.0, 0.5, 0.0), Color(0.0, 0.5, 0.0), 0.0, 1.0, 1.5); //verde refractiva 100%
+	Esfera esfera2 = Esfera(2, Punto(0, 0, -5), Color(1.0, 1.0, 1.0), Color(1.0, 1.0, 1.0), 0.0, 0.0, 1.5); //roja mitad refractiva mitad transmitiva
+	// Esfera esfera3 = Esfera(0.5, Punto(1, 0, -3), Color(0.0, 0.0, 1.0), Color(0.0, 0.0, 1.0), 0.0, 0.0, 1.5); //azul transmitiva 100%
 	cantObjetos = 2;
 	objetos = new Objeto*[cantObjetos];
 	objetos[0] = &esfera;
 	objetos[1] = &esfera2;
+	// objetos[2] = &esfera3;
 	/*cout << "Ingresar nombre del archivo" << endl;
 	cin >> s;
 	if (s == "0") {
