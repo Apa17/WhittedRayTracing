@@ -14,6 +14,7 @@ class Objeto {
 		double getindRefrac();
 		Color getColorDifuso();
 		Color getColorEspecular();
+		//double isInside(Punto punto);
 	protected:
 		Color colorDifuso;
 		Color colorEspecular;

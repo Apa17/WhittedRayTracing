@@ -38,6 +38,17 @@ int cantLuces;
 int iglobal;
 int jglobal;
 
+//double get_indice_refraccion(Punto x){
+//	double res = 1;
+//	for(int i = 0; i < cantObjetos; i++){
+//		if(objetos[i]->isInside(x)){
+//			if(objetos[i]->getindRefrac() > res){
+//				res = objetos[i]->getindRefrac();
+//			}
+//		};
+//	}
+//}
+
 Color traza_rr(Ray ray, int depth);
 
 Color sombra_rr(Objeto* o, Ray r, Punto interseccion, Punto normal, int depth){
@@ -48,6 +59,7 @@ Color sombra_rr(Objeto* o, Ray r, Punto interseccion, Punto normal, int depth){
 	// Ip color de la fuente de luz??? // TODO Preguntar profe por las dudas
 	// color = término del ambiente;
 	Color c = ia * o->getColorDifuso();
+	Color color_s = c;
 	Punto nNormalizado = normal.normalized();
 	for(int i =0; i< cantLuces; i++) { // for (cada luz) {
 		//	rayo_s = rayo desde el punto a la luz;
@@ -72,23 +84,12 @@ Color sombra_rr(Objeto* o, Ray r, Punto interseccion, Punto normal, int depth){
 			double b = 0.04;
 			double fatt = 1/(b*dl2);
 			Color ip = luces[i].colour;
-			c = c + (ip * fatt * kd * NxL * o->getColorDifuso());
-			if (iglobal == 800 && jglobal == 720) {
-				std::cout << "		dl2: " << dl2 << std::endl;
-				std::cout << "		b: " << b << std::endl;
-				std::cout << "		fatt: " << fatt << std::endl;
-				std::cout << "		ip: " << ip << std::endl;
-				std::cout << "		color con ambiente y difusa: " << c << std::endl;
-			}
+			color_s = color_s  + (ip * fatt * kd * NxL * o->getColorDifuso());
 			Punto V = (r.direccion.normalized() * - 1);
 			Punto R = (nNormalizado * 2 * NxL) - rayo_s.direccion.normalized();
 			double cosalfa = R * V;
-			c = c + o->getColorEspecular() * ks * fatt * ip * pow(cosalfa,40);
-			c = c * luz_visible;
-			if (iglobal == 800 && jglobal == 720) {
-				std::cout << "		cosalfa: " << cosalfa << std::endl;
-				std::cout << "		color con ambiente, difusa y especular: " << c << std::endl;
-			}
+			color_s = color_s + o->getColorEspecular() * ks * fatt * ip * pow(cosalfa,40);
+			color_s = color_s * luz_visible;
 		}
 	}
 	
@@ -107,8 +108,9 @@ Color sombra_rr(Objeto* o, Ray r, Punto interseccion, Punto normal, int depth){
 			color_r = color_r * o->getcoefReflex(); // escalar color_r por el coeficiente especular y añadir al color;
 		}
 		if(o->getcoefTransm() > 0){
-			double n1 = r.indRefrac;
-			double n2 = o->getindRefrac();
+			Punto X = interseccion + r.direccion * 0.001;
+			double n1 = 1;
+			double n2 = 1;
 			double thetac = asin(n1/n2);
 			if (iglobal == 800 && jglobal == 720) {
 				std::cout << "	angulo incidencia: " << angulo_incidencia << std::endl;
@@ -152,8 +154,7 @@ Color sombra_rr(Objeto* o, Ray r, Punto interseccion, Punto normal, int depth){
 	}
 	// TODO PREGUNTAR PROFE
 	// c = sumar_color(c, color_r);
-	c = c * (1 - o->getcoefTransm()) + color_t;
-	c = c.normalizar_color();
+	c = color_s * (1 - o->getcoefTransm()) + color_r + color_t;
 	return c;
 }
 
@@ -226,6 +227,11 @@ int main() {
 	// Esfera esfera3 = Esfera(0.5, Punto(1, 0, -3), Color(0.0, 0.0, 1.0), Color(0.0, 0.0, 1.0), 0.0, 1.0, 1.5); //azul transmitiva 100%
 	Esfera esfera = Esfera(0.5, Punto(0, 0, -2), Color(0.0, 0.5, 0.0), Color(0.0, 0.5, 0.0), 0.0, 1.0, 1.5); //verde refractiva 100%
 	Esfera esfera2 = Esfera(2, Punto(0, 0, -5), Color(1.0, 1.0, 1.0), Color(1.0, 1.0, 1.0), 0.0, 0.0, 1.5); //roja mitad refractiva mitad transmitiva
+	// Ray j;
+	// j.indRefrac = esfera2.getindRefrac();
+	// j.direccion = Punto(0, 0, -1);
+	// j.origen = Punto(0, 0, -3);
+	// std::cout << esfera2.chequear_colision(j).first << esfera2.chequear_colision(j).second << endl;
 	// Esfera esfera3 = Esfera(0.5, Punto(1, 0, -3), Color(0.0, 0.0, 1.0), Color(0.0, 0.0, 1.0), 0.0, 0.0, 1.5); //azul transmitiva 100%
 	cantObjetos = 2;
 	objetos = new Objeto*[cantObjetos];
@@ -253,4 +259,5 @@ int main() {
 	int alto = ALTO;
 	h_w_color pixels = render();
 	return renderizar(alto, ancho, pixels);
+	// return 0;
 }
