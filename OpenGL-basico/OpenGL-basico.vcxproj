@@ -94,6 +94,7 @@
     <ClInclude Include="..\inc\render.h" />
     <ClInclude Include="..\inc\tinyxml2.h" />
     <ClInclude Include="..\mesh.h" />
+    <ClInclude Include="cilindro.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\camara.cpp" />
@@ -106,6 +107,7 @@
     <ClCompile Include="..\src\ray.cpp" />
     <ClCompile Include="..\src\render.cpp" />
     <ClCompile Include="..\src\tinyxml2.cpp" />
+    <ClCompile Include="cilindro.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

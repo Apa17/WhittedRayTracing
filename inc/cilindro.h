@@ -3,6 +3,7 @@
 
 #include "objeto.h"
 #include "punto.h"
+#include "color.h"
 #include <tuple>
 
 class Cilindro : public Objeto {
@@ -17,6 +18,5 @@ class Cilindro : public Objeto {
 		Cilindro(double radio, double altura, Punto centro, Punto direccion_eje, Color colorDifuso, Color colorEspecular, double coefReflex, double coefTransm, double indRefrac);
 		std::pair<bool, Punto> chequear_colision(Ray rayo);
 		Punto getNormal(Punto punto);
-		Color getColor();
 };
 #endif 

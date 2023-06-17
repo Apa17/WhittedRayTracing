@@ -24,7 +24,8 @@ double verticalSize = 1;
 // #define ALTO 2160;
 // double horizontalSize = 1.920;
 // double verticalSize = 1.080;
-
+//
+bool imprimi = false;
 Objeto** objetos;
 double cantObjetos;
 Camara camara(Punto(0, 0, 0), Punto(0, 1, 0), Punto(0, 0, -1), verticalSize, horizontalSize); //replace this
@@ -69,14 +70,13 @@ Color sombra_rr(int id, Ray r, Punto interseccion, Punto normal, int depth){
 		rayo_s.origen = interseccion + nNormalizado * 0.0001;
 		rayo_s.indRefrac = r.indRefrac;
 		rayo_s.direccion = (luces[i].posicion - interseccion).normalized();
-		rayo_s.objetos = r.objetos;
 		double NxL = nNormalizado * rayo_s.direccion;
 		if (NxL > 0) {
 			Color luz_visible = Color(1, 1, 1);
 			bool luz_visible_bool = true;
 			for(int j = 0; j < cantObjetos; j++){
 				if(objetos[j]->chequear_colision(rayo_s).first && objetos[j] != o){
-					luz_visible = luz_visible * objetos[j]->getcoefTransm() * objetos[j]->getColorDifuso();
+					luz_visible = luz_visible * objetos[j]->getcoefTransm() + objetos[j]->getColorDifuso() * (1 - objetos[j]->getcoefTransm());
 					luz_visible_bool = false;
 					if(objetos[j]->getcoefTransm() == 0){
 						break;
@@ -101,68 +101,71 @@ Color sombra_rr(int id, Ray r, Punto interseccion, Punto normal, int depth){
 	if(depth < depth_max){
 		Punto V = r.direccion.normalized() * -1;
 		double NxV = normal.normalized() * V;
-		double angulo_incidencia = acos(normal.normalized() * V);
+		double angulo_incidencia = acos(abs(normal.normalized() * V));
 		if(o->getcoefReflex() > 0){
 			Ray rayo_r;	
 			rayo_r.origen = interseccion + normal.normalized() * 0.0001;
 			rayo_r.indRefrac = r.indRefrac;
 			rayo_r.direccion = (nNormalizado * 2 * NxV) - V;
-			rayo_r.objetos = r.objetos;
 			color_r = traza_rr(rayo_r, depth + 1);
 			color_r = color_r * o->getcoefReflex(); // escalar color_r por el coeficiente especular y añadir al color;
 		}
 		if(o->getcoefTransm() > 0){
-			Punto X = interseccion + r.direccion * 0.001;
-			double n1 = 1;
-			double n2 = 1;
-			double thetac = asin(n1/n2);
-			if (iglobal == 250 && jglobal == 250) {
-				std::cout << "	n1: " << n1 << std::endl;
-				std::cout << "	n2: " << n2 << std::endl;
-				std::cout << "	angulo incidencia: " << angulo_incidencia << std::endl;
-				std::cout << "	thetac: " << thetac << std::endl;
-				bool condicion = angulo_incidencia < thetac;
-				std::cout << "	condicion: " << condicion << std::endl;
+			Punto X;
+			double n2;
+			Ray rayo_t;
+			if (nNormalizado * V > 0){
+				X = nNormalizado * -0.001;
+				n2 = o->getindRefrac();
 			}
+			else {
+				X = nNormalizado * 0.001;
+				n2 = 1;
+			}
+			double n1 = r.indRefrac;
+			double angulo_salida = asin(n1/n2*sin(angulo_incidencia));
+			double thetac = asin(n1 / n2);
 			if(angulo_incidencia < thetac){
-				double thetat = asin(sin(angulo_incidencia)*n1/n2); //0
-				Punto proLn;
-				if(normal.normalized() == V)
-					proLn = normal;
-				else
-					proLn = V - (normal.normalized() * (normal.normalized() * V));
-				Punto G = proLn/sin(angulo_incidencia);
-				Ray rayo_t;
-				rayo_t.origen = interseccion - normal.normalized() * 0.0001;
-				Punto lado_izq_ecua = normal * -1 * cos(thetat);
-				Punto lado_der_ecua = G * sin(thetat);
-				rayo_t.direccion = lado_izq_ecua - lado_der_ecua;
-				if (iglobal == 250 && jglobal == 250) {
-					std::cout << "	interseccion: " << interseccion << std::endl;
-					std::cout << "	r.direccion.normalized(): " << r.direccion.normalized() << std::endl;
-					std::cout << "	normal.normalized()" << normal.normalized() << std::endl;
-					std::cout << "	proLn: " << proLn << std::endl;
-					std::cout << "	normal: " << normal << std::endl;
-					std::cout << "	thetat: " << thetat << std::endl;
-					std::cout << "	cos(thetat): " << cos(thetat) << std::endl;
-					std::cout << "	sin(thetat): " << sin(thetat) << std::endl;
-					std::cout << "	rayo_t.direccion: " << rayo_t.direccion << std::endl;
-					std::cout << "	lado_izq_ecua: " << lado_izq_ecua << std::endl;
-					std::cout << "	lado_der_ecua: " << lado_der_ecua << std::endl;
-					std::cout << "	sin(angulo_incidencia): " << sin(angulo_incidencia) << std::endl;
-					std::cout << "	G: " << G << std::endl;
-				}
-				rayo_t.indRefrac = n2;
-				rayo_t.objetos = objetos_nuevo;
-				color_t = traza_rr (rayo_t, depth + 1);
-				color_t = color_t * o->getcoefTransm(); // escalar color_t por el coeficiente de transmisión y añadir a color;				
+				//sin(angulo_salida)*Perpendiular_normal - cos(angulo_incidencia)*normal
+				Punto M = nNormalizado*cos(angulo_incidencia) - V;
+				rayo_t.direccion = M - nNormalizado* cos(angulo_incidencia);
+				rayo_t.origen = interseccion + X;
+				rayo_t.indRefrac = 1;
+				// double thetat = asin(sin(angulo_incidencia)*n1/n2); //0
+				// Punto proLn;
+				// if(normal.normalized() == V)
+				// 	proLn = normal.normalized();
+				// else
+				// 	proLn = V - (normal.normalized() * (normal.normalized() * V));
+				// Punto G = proLn/sin(angulo_incidencia);
+				// Ray rayo_t;
+				// rayo_t.origen = interseccion - normal.normalized() * 0.0001;
+				// Punto lado_izq_ecua = normal * -1 * cos(thetat);
+				// Punto lado_der_ecua = G * sin(thetat);
+				// rayo_t.direccion = lado_izq_ecua - lado_der_ecua;
+				//if (depth == 2) {
+				// 	std::cout << "	interseccion: " << interseccion << std::endl;
+				// 	std::cout << "	r.direccion.normalized(): " << r.direccion.normalized() << std::endl;
+				// 	std::cout << "	normal.normalized()" << normal.normalized() << std::endl;
+				// 	std::cout << "	normal: " << normal << std::endl;
+				// 	std::cout << "	rayo_t.direccion: " << rayo_t.direccion << std::endl;
+				// 	std::cout << "	sin(angulo_incidencia): " << sin(angulo_incidencia) << std::endl;
+				//}
+				// rayo_t.indRefrac = n2;		
 			}
+			else {
+				rayo_t.origen = interseccion - X;
+				rayo_t.indRefrac = r.indRefrac;
+				rayo_t.direccion = (nNormalizado * 2 * NxV) - V; 
+			}
+			color_t = traza_rr(rayo_t, depth + 1); // escalar color_r por el coeficiente especular y añadir al color;
+			color_t = color_t * o->getcoefTransm();
 		}
 	}
 	// TODO PREGUNTAR PROFE
 	// c = sumar_color(c, color_r);
-	c = color_s * (1 - o->getcoefTransm()) + color_r + color_t;
-	return c;
+	c = color_s * (1 - o->getcoefTransm() - o->getcoefReflex()) + color_r + color_t;
+	return c.normalizar_color();
 }
 
 Color traza_rr(Ray ray, int depth){
@@ -226,25 +229,27 @@ h_w_color render() {
 
 int main() {
 	luces = new Luz[1];
-	luces[0] = Luz(Punto(1, 1, 0), Color(1.0, 1.0, 1.0));
-	luces[1] = Luz(Punto(1, 1, 0), Color(1.0, 1.0, 1.0));
+	luces[0] = Luz(Punto(-1, 1, 0), Color(1.0, 1.0, 1.0));
+	luces[1] = Luz(Punto(-1, 1, 0), Color(1.0, 1.0, 1.0));
 	cantLuces = 2;
 	// Esfera esfera = Esfera(0.5, Punto(-1, 0, -3), Color(0.0, 1.0, 0.0), Color(0.0, 1.0, 0.0), 1.0, 0.0, 1.5); //verde refractiva 100%
 	// Esfera esfera2 = Esfera(0.5, Punto(0, 1, -3), Color(1.0, 0.0, 0.0), Color(1.0, 0.0, 0.0), 0.5, 0.5, 1.5); //roja mitad refractiva mitad transmitiva
-	// Esfera esfera3 = Esfera(0.5, Punto(1, 0, -3), Color(0.0, 0.0, 1.0), Color(0.0, 0.0, 1.0), 0.0, 1.0, 1.5); //azul transmitiva 100%
-	Esfera esfera = Esfera(0.5, Punto(0, 0, -2), Color(0.0, 0.5, 0.0), Color(0.0, 0.5, 0.0), 0.0, 1.0, 1.5); //verde refractiva 100%
-	Esfera esfera2 = Esfera(2, Punto(0, 0, -5), Color(1.0, 1.0, 1.0), Color(1.0, 1.0, 1.0), 0.0, 0.0, 1.5); //roja mitad refractiva mitad transmitiva
+	Esfera esfera3 = Esfera(2, Punto(2, 1, 0), Color(1, 1, 1), Color(1, 1, 1), 0.0, 0.0, 1); //azul transmitiva 100%
+	Esfera esfera = Esfera(0.5, Punto(0, 0, -2), Color(0.0, 0.5, 0.0), Color(0.0, 0.5, 0.0), 0.0, 0.9, 1.5); //verde refractiva 100%
+	Esfera esfera2 = Esfera(2, Punto(0, 0, -5), Color(0.5, 0.5, 0.5), Color(0.5, 0.5, 0.5), 0.0, 0.0, 1); //roja mitad refractiva mitad transmitiva
+	//Cilindro cilindro = Cilindro(1, 2, Punto(0, 0, -5), Punto(0,1,0), Color(0.5, 0.5, 0.5), Color(0.5, 0.5, 0.5), 0.0, 0.0, 1.5); //roja mitad refractiva mitad transmitiva
 	// Ray j;
 	// j.indRefrac = esfera2.getindRefrac();
 	// j.direccion = Punto(0, 0, -1);
 	// j.origen = Punto(0, 0, -3);
 	// std::cout << esfera2.chequear_colision(j).first << esfera2.chequear_colision(j).second << endl;
 	// Esfera esfera3 = Esfera(0.5, Punto(1, 0, -3), Color(0.0, 0.0, 1.0), Color(0.0, 0.0, 1.0), 0.0, 0.0, 1.5); //azul transmitiva 100%
-	cantObjetos = 2;
+	cantObjetos = 3;
 	objetos = new Objeto*[cantObjetos];
 	objetos[0] = &esfera;
+	//objetos[0] = &cilindro;
 	objetos[1] = &esfera2;
-	// objetos[2] = &esfera3;
+	objetos[2] = &esfera3;
 	/*cout << "Ingresar nombre del archivo" << endl;
 	cin >> s;
 	if (s == "0") {
