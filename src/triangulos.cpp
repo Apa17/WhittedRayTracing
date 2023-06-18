@@ -1,4 +1,5 @@
 #include "../inc/triangulos.h"
+#include <iostream>
 
 Triangulo::Triangulo(Punto a, Punto b, Punto c, Color colorDifuso, Color colorEspecular, double ka, double kd, double coefReflex, double coefTransm, double indRefrac) {
     this->a = a;
@@ -19,7 +20,9 @@ Punto Triangulo::getNormal(Punto punto) {
 std::pair<bool, Punto> Triangulo::chequear_colision(Ray rayo){
     double u= this->normal * rayo.direccion;
     Punto actreves = this->normal.cross(this->a - this->c);
+    actreves = actreves / ((this->b-this->a)*actreves);
     Punto abtreves = this->normal.cross(this->b - this->a);
+    abtreves = abtreves / ((this->c-this->a)*abtreves);
     if (u == 0) {
         return std::make_pair(false, Punto(0,0,0));
     }
