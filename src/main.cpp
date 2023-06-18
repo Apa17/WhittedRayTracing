@@ -1,7 +1,7 @@
 #include <string>
 #include <iostream>
-#include "Escena.h"
 #include <tuple>
+#include "Escena.h"
 #include "Render.h"
 #include "Camara.h"
 #include "Punto.h"
@@ -206,25 +206,22 @@ void objetos_para_probar(){
 	luces = new Luz[cantLuces];
 	luces[0] = Luz(Punto(-1, 1, 0), Color(1.0, 1.0, 1.0));
 	luces[1] = Luz(Punto(-1, 1, 0), Color(1.0, 1.0, 1.0));
-	Esfera esfera = Esfera(0.5, Punto(0, 0, -2), Color(0.0, 0.5, 0.0), Color(0.0, 0.5, 0.0), 0.01, 0.01, 0.0, 0.98, 1.5); // verde no fuerte
-	Esfera esfera2 = Esfera(2, Punto(0, 0, -5), Color(0.5, 0.5, 0.5), Color(0.5, 0.5, 0.5), 0.1, 0.9, 0.0, 0.0, 1.1); // gris
-	Esfera esfera3 = Esfera(2, Punto(2, 1, 0), Color(1, 1, 1), Color(1, 1, 1), 0.1, 0.9, 0.0, 0.0, 1); // blanca
+	Objeto * esfera = new Esfera(0.5, Punto(0, 0, -2), Color(0.0, 0.5, 0.0), Color(0.0, 0.5, 0.0), 0.01, 0.01, 0.0, 0.98, 1.5); // verde no fuerte
+	Objeto * esfera2 = new Esfera(2, Punto(0, 0, -5), Color(0.5, 0.5, 0.5), Color(0.5, 0.5, 0.5), 0.1, 0.9, 0.0, 0.0, 1.1); // gris
+	Objeto * esfera3 = new Esfera(2, Punto(2, 1, 0), Color(1, 1, 1), Color(1, 1, 1), 0.1, 0.9, 0.0, 0.0, 1); // blanca
 	Triangulo* triangulo = new Triangulo(Punto(-5, -5, -10), Punto(5, -5, -10), Punto(5, 5, -10), Color(0.0, 0.0, 0.5), Color(0.0, 0.0, 0.5), 0.0, 0.0, 0.0, 2.0, 1.5);
 	Triangulo* triangulo1 = new Triangulo(Punto(5, 5, -10), Punto(-5, 5, -10), Punto(-5, -5, -10), Color(0.0, 0.0, 0.5), Color(0.0, 0.0, 0.5), 0.0, 0.0, 0.0, 2.0, 1.5); 
 	Triangulo ** arrTriangulos = new Triangulo*[2];
 	arrTriangulos[0] = triangulo;
 	arrTriangulos[1] = triangulo1;
-	Malla_Poligonal mp = Malla_Poligonal(arrTriangulos, 2, Color(0.0, 0.0, 0.5), Color(0.0, 0.0, 0.5), 0.1, 0.9, 0.0, 0.0, 1.5);
-	for(int i = 0; i < 2; i++){
-		std::cout << "triangulo " << arrTriangulos[i]->getcoefTransm() << endl;
-	}
+	Malla_Poligonal * mp =  new Malla_Poligonal(arrTriangulos, 2, Color(0.0, 0.0, 0.5), Color(0.0, 0.0, 0.5), 0.1, 0.9, 0.0, 0.0, 1.5);
 	//Cilindro cilindro = Cilindro(1, 2, Punto(0, 0, -5), Punto(0,1,0), Color(0.5, 0.5, 0.5), Color(0.5, 0.5, 0.5), 0.0, 0.0, 1.5); //roja mitad refractiva mitad transmitiva
-	cantObjetos = 3;
+	cantObjetos = 4;
 	objetos = new Objeto*[cantObjetos];
-	objetos[0] = &esfera;
-	objetos[1] = &esfera2;
-	objetos[2] = &esfera3;
-	// objetos[3] = &mp;
+	objetos[0] = esfera;
+	objetos[1] = esfera2;
+	objetos[2] = esfera3;
+	objetos[3] = mp;
 }
 
 int main() {
