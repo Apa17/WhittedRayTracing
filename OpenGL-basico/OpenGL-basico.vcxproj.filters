@@ -51,7 +51,13 @@
     <ClInclude Include="..\inc\color.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="cilindro.h">
+    <ClInclude Include="..\inc\malla_poligonal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\inc\triangulos.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\inc\cilindro.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -86,7 +92,13 @@
     <ClCompile Include="..\src\color.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cilindro.cpp">
+    <ClCompile Include="..\src\malla_poligonal.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\triangulos.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\cilindro.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

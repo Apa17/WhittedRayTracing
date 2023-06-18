@@ -9,6 +9,8 @@ class Objeto {
 	public: 
 		virtual std::pair<bool, Punto> chequear_colision(Ray rayo) = 0;
 		virtual Punto getNormal(Punto punto) = 0;
+		double getcoefAmbiente();
+		double getcoefDifuso();
 		double getcoefReflex();
 		double getcoefTransm();
 		double getindRefrac();
@@ -18,8 +20,10 @@ class Objeto {
 	protected:
 		Color colorDifuso;
 		Color colorEspecular;
-		double coefReflex; // coeficiente de reflexión
-		double coefTransm; // coeficiente de transmisión
+		double ka; // coeficiente de ambiente
+		double kd; // coeficiente de difusión
+		double ks; // coeficiente de reflexión
+		double kt; // coeficiente de transmisión
 		double indRefrac; // índice de refracción
 };
 

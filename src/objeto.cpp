@@ -1,11 +1,19 @@
 #include "../inc/objeto.h"
 
+double Objeto::getcoefAmbiente() {
+    return this->ka;
+}
+
+double Objeto::getcoefDifuso() {
+    return this->kd;
+}
+
 double Objeto::getcoefReflex() {
-    return this->coefReflex;
+    return this->ks;
 }
 
 double Objeto::getcoefTransm() {
-    return this->coefTransm;
+    return this->kt;
 }
 
 double Objeto::getindRefrac() {

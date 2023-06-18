@@ -71,6 +71,10 @@ Punto Punto::operator/(double d) {
     return Punto(x/d, y/d, z/d);
 }
 
+bool Punto::operator<(Punto p) {
+    return x<p.getX() && y<p.getY() && z<p.getZ();
+}
+
 std::ostream& operator<<(std::ostream& os, Punto p) {
     os << "(" << p.getX() << ", " << p.getY() << ", " << p.getZ() << ")";
     return os;

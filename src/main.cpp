@@ -9,6 +9,7 @@
 #include "Cilindro.h"
 #include "Luz.h"
 #include "color.h"
+#include "../inc/malla_poligonal.h"
 
 #define ANCHO 500; //para probar
 #define ALTO 500;
@@ -31,10 +32,6 @@ double cantObjetos;
 Camara camara(Punto(0, 0, 0), Punto(0, 1, 0), Punto(0, 0, -1), verticalSize, horizontalSize); //replace this
 Luz* luces;
 Color ia = Color(0.2, 0.2, 0.2);
-double ka = 1;
-double kd = 0.5;
-double ks = 0.5;
-double kt = 0.5;
 int depth_max = 7;
 int cantLuces;
 int iglobal;
@@ -61,7 +58,7 @@ Color sombra_rr(int id, Ray r, Punto interseccion, Punto normal, int depth){
 	// Ip color de la fuente de luz??? // TODO Preguntar profe por las dudas
 	// color = término del ambiente;
 	Objeto * o = objetos[id];
-	Color c = ia * o->getColorDifuso();
+	Color c = ia * o->getColorDifuso() * o->getcoefAmbiente();
 	Color color_s = c;
 	Punto nNormalizado = normal.normalized();
 	for(int i =0; i< cantLuces; i++) { // for (cada luz) {
@@ -76,7 +73,7 @@ Color sombra_rr(int id, Ray r, Punto interseccion, Punto normal, int depth){
 			bool luz_visible_bool = true;
 			for(int j = 0; j < cantObjetos; j++){
 				if(objetos[j]->chequear_colision(rayo_s).first && objetos[j] != o){
-					luz_visible = luz_visible * objetos[j]->getcoefTransm() + objetos[j]->getColorDifuso() * (1 - objetos[j]->getcoefTransm());
+					luz_visible = (luz_visible + objetos[j]->getColorDifuso() * (1 - objetos[j]->getcoefTransm())) * objetos[j]->getcoefTransm();
 					luz_visible_bool = false;
 					if(objetos[j]->getcoefTransm() == 0){
 						break;
@@ -87,11 +84,11 @@ Color sombra_rr(int id, Ray r, Punto interseccion, Punto normal, int depth){
 			double b = 0.04;
 			double fatt = 1/(b*dl2);
 			Color ip = luces[i].colour;
-			color_s = color_s  + (ip * fatt * kd * NxL * o->getColorDifuso());
+			color_s = color_s  + (ip * fatt * o->getcoefDifuso() * NxL * o->getColorDifuso());
 			Punto V = (r.direccion.normalized() * - 1);
 			Punto R = (nNormalizado * 2 * NxL) - rayo_s.direccion.normalized();
 			double cosalfa = R * V;
-			color_s = color_s + o->getColorEspecular() * ks * fatt * ip * pow(cosalfa,40);
+			color_s = color_s + o->getColorEspecular() * o->getcoefReflex() * fatt * ip * pow(cosalfa,40);
 			color_s = color_s * luz_visible;
 		}
 	}
@@ -131,27 +128,6 @@ Color sombra_rr(int id, Ray r, Punto interseccion, Punto normal, int depth){
 				rayo_t.direccion = M - nNormalizado* cos(angulo_incidencia);
 				rayo_t.origen = interseccion + X;
 				rayo_t.indRefrac = 1;
-				// double thetat = asin(sin(angulo_incidencia)*n1/n2); //0
-				// Punto proLn;
-				// if(normal.normalized() == V)
-				// 	proLn = normal.normalized();
-				// else
-				// 	proLn = V - (normal.normalized() * (normal.normalized() * V));
-				// Punto G = proLn/sin(angulo_incidencia);
-				// Ray rayo_t;
-				// rayo_t.origen = interseccion - normal.normalized() * 0.0001;
-				// Punto lado_izq_ecua = normal * -1 * cos(thetat);
-				// Punto lado_der_ecua = G * sin(thetat);
-				// rayo_t.direccion = lado_izq_ecua - lado_der_ecua;
-				//if (depth == 2) {
-				// 	std::cout << "	interseccion: " << interseccion << std::endl;
-				// 	std::cout << "	r.direccion.normalized(): " << r.direccion.normalized() << std::endl;
-				// 	std::cout << "	normal.normalized()" << normal.normalized() << std::endl;
-				// 	std::cout << "	normal: " << normal << std::endl;
-				// 	std::cout << "	rayo_t.direccion: " << rayo_t.direccion << std::endl;
-				// 	std::cout << "	sin(angulo_incidencia): " << sin(angulo_incidencia) << std::endl;
-				//}
-				// rayo_t.indRefrac = n2;		
 			}
 			else {
 				rayo_t.origen = interseccion - X;
@@ -162,9 +138,8 @@ Color sombra_rr(int id, Ray r, Punto interseccion, Punto normal, int depth){
 			color_t = color_t * o->getcoefTransm();
 		}
 	}
-	// TODO PREGUNTAR PROFE
-	// c = sumar_color(c, color_r);
-	c = color_s * (1 - o->getcoefTransm() - o->getcoefReflex()) + color_r + color_t;
+	// c = c + color_s * o->getcoefDifuso() + color_r + color_t;
+	c = c + color_s + color_r + color_t;
 	return c.normalizar_color();
 }
 
@@ -226,30 +201,35 @@ h_w_color render() {
 	return color;
 }
 
-
-int main() {
-	luces = new Luz[1];
+void objetos_para_probar(){
+	cantLuces = 2;
+	luces = new Luz[cantLuces];
 	luces[0] = Luz(Punto(-1, 1, 0), Color(1.0, 1.0, 1.0));
 	luces[1] = Luz(Punto(-1, 1, 0), Color(1.0, 1.0, 1.0));
-	cantLuces = 2;
-	// Esfera esfera = Esfera(0.5, Punto(-1, 0, -3), Color(0.0, 1.0, 0.0), Color(0.0, 1.0, 0.0), 1.0, 0.0, 1.5); //verde refractiva 100%
-	// Esfera esfera2 = Esfera(0.5, Punto(0, 1, -3), Color(1.0, 0.0, 0.0), Color(1.0, 0.0, 0.0), 0.5, 0.5, 1.5); //roja mitad refractiva mitad transmitiva
-	Esfera esfera3 = Esfera(2, Punto(2, 1, 0), Color(1, 1, 1), Color(1, 1, 1), 0.0, 0.0, 1); //azul transmitiva 100%
-	Esfera esfera = Esfera(0.5, Punto(0, 0, -2), Color(0.0, 0.5, 0.0), Color(0.0, 0.5, 0.0), 0.0, 0.9, 1.5); //verde refractiva 100%
-	Esfera esfera2 = Esfera(2, Punto(0, 0, -5), Color(0.5, 0.5, 0.5), Color(0.5, 0.5, 0.5), 0.0, 0.0, 1); //roja mitad refractiva mitad transmitiva
+	Esfera esfera = Esfera(0.5, Punto(0, 0, -2), Color(0.0, 0.5, 0.0), Color(0.0, 0.5, 0.0), 0.01, 0.01, 0.0, 0.98, 1.5); // verde no fuerte
+	Esfera esfera2 = Esfera(2, Punto(0, 0, -5), Color(0.5, 0.5, 0.5), Color(0.5, 0.5, 0.5), 0.1, 0.9, 0.0, 0.0, 1.1); // gris
+	Esfera esfera3 = Esfera(2, Punto(2, 1, 0), Color(1, 1, 1), Color(1, 1, 1), 0.1, 0.9, 0.0, 0.0, 1); // blanca
+	Triangulo* triangulo = new Triangulo(Punto(-5, -5, -10), Punto(5, -5, -10), Punto(5, 5, -10), Color(0.0, 0.0, 0.5), Color(0.0, 0.0, 0.5), 0.0, 0.0, 0.0, 2.0, 1.5);
+	Triangulo* triangulo1 = new Triangulo(Punto(5, 5, -10), Punto(-5, 5, -10), Punto(-5, -5, -10), Color(0.0, 0.0, 0.5), Color(0.0, 0.0, 0.5), 0.0, 0.0, 0.0, 2.0, 1.5); 
+	Triangulo ** arrTriangulos = new Triangulo*[2];
+	arrTriangulos[0] = triangulo;
+	arrTriangulos[1] = triangulo1;
+	Malla_Poligonal mp = Malla_Poligonal(arrTriangulos, 2, Color(0.0, 0.0, 0.5), Color(0.0, 0.0, 0.5), 0.1, 0.9, 0.0, 0.0, 1.5);
+	for(int i = 0; i < 2; i++){
+		std::cout << "triangulo " << arrTriangulos[i]->getcoefTransm() << endl;
+	}
 	//Cilindro cilindro = Cilindro(1, 2, Punto(0, 0, -5), Punto(0,1,0), Color(0.5, 0.5, 0.5), Color(0.5, 0.5, 0.5), 0.0, 0.0, 1.5); //roja mitad refractiva mitad transmitiva
-	// Ray j;
-	// j.indRefrac = esfera2.getindRefrac();
-	// j.direccion = Punto(0, 0, -1);
-	// j.origen = Punto(0, 0, -3);
-	// std::cout << esfera2.chequear_colision(j).first << esfera2.chequear_colision(j).second << endl;
-	// Esfera esfera3 = Esfera(0.5, Punto(1, 0, -3), Color(0.0, 0.0, 1.0), Color(0.0, 0.0, 1.0), 0.0, 0.0, 1.5); //azul transmitiva 100%
 	cantObjetos = 3;
 	objetos = new Objeto*[cantObjetos];
 	objetos[0] = &esfera;
-	//objetos[0] = &cilindro;
 	objetos[1] = &esfera2;
 	objetos[2] = &esfera3;
+	// objetos[3] = &mp;
+}
+
+int main() {
+	objetos_para_probar();
+	//objetos[0] = &cilindro;
 	/*cout << "Ingresar nombre del archivo" << endl;
 	cin >> s;
 	if (s == "0") {

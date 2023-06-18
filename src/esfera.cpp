@@ -1,13 +1,15 @@
 #include "../inc/esfera.h"
 #include <iostream>
 
-Esfera::Esfera(double radio, Punto centro, Color colorDifuso, Color colorEspecular, double coefReflex, double coefTransm, double indRefrac) {
+Esfera::Esfera(double radio, Punto centro, Color colorDifuso, Color colorEspecular, double ka, double kd, double coefReflex, double coefTransm, double indRefrac) {
     this->radio = radio;
     this->centro = centro;
     this->colorDifuso = colorDifuso;
     this->colorEspecular = colorEspecular;
-    this->coefReflex = coefReflex;
-    this->coefTransm = coefTransm;
+    this->ka = ka;
+    this->kd = kd;
+    this->ks = coefReflex;
+    this->kt = coefTransm;
     this->indRefrac = indRefrac;
 }
 

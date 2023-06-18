@@ -15,7 +15,7 @@ class Cilindro : public Objeto {
         Punto centro_tapa1;
         Punto centro_tapa2;
 	public:
-		Cilindro(double radio, double altura, Punto centro, Punto direccion_eje, Color colorDifuso, Color colorEspecular, double coefReflex, double coefTransm, double indRefrac);
+		Cilindro(double radio, double altura, Punto centro, Punto direccion_eje, Color colorDifuso, Color colorEspecular, double ka, double kd,double coefReflex, double coefTransm, double indRefrac);
 		std::pair<bool, Punto> chequear_colision(Ray rayo);
 		Punto getNormal(Punto punto);
 };

@@ -1,15 +1,17 @@
 #include "../inc/cilindro.h"
 #include <iostream>
 
-Cilindro::Cilindro(double radio, double altura, Punto centro, Punto direccion_eje, Color colorDifuso, Color colorEspecular, double coefReflex, double coefTransm, double indRefrac){
+Cilindro::Cilindro(double radio, double altura, Punto centro, Punto direccion_eje, Color colorDifuso, Color colorEspecular, double ka, double kd, double coefReflex, double coefTransm, double indRefrac){
     this->radio = radio;
     this->altura = altura;
     this->centro = centro;
     this->direccion_eje = direccion_eje.normalized();
     this->colorDifuso = colorDifuso;
     this->colorEspecular = colorEspecular;
-    this->coefReflex = coefReflex;
-    this->coefTransm = coefTransm;
+    this->ka = ka;
+    this->kd = kd;
+    this->ks = coefReflex;
+    this->kt = coefTransm;
     this->indRefrac = indRefrac;
     this->centro_tapa1 = centro + (direccion_eje * (altura/2));
     this->centro_tapa2 = centro + (direccion_eje * (-altura/2));

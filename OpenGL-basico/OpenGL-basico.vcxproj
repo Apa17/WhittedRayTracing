@@ -83,31 +83,35 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\inc\camara.h" />
+    <ClInclude Include="..\inc\cilindro.h" />
     <ClInclude Include="..\inc\color.h" />
     <ClInclude Include="..\inc\escena.h" />
     <ClInclude Include="..\inc\esfera.h" />
     <ClInclude Include="..\inc\FreeImage.h" />
     <ClInclude Include="..\inc\luz.h" />
+    <ClInclude Include="..\inc\malla_poligonal.h" />
     <ClInclude Include="..\inc\objeto.h" />
     <ClInclude Include="..\inc\punto.h" />
     <ClInclude Include="..\inc\ray.h" />
     <ClInclude Include="..\inc\render.h" />
     <ClInclude Include="..\inc\tinyxml2.h" />
+    <ClInclude Include="..\inc\triangulos.h" />
     <ClInclude Include="..\mesh.h" />
-    <ClInclude Include="cilindro.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\camara.cpp" />
+    <ClCompile Include="..\src\cilindro.cpp" />
     <ClCompile Include="..\src\color.cpp" />
     <ClCompile Include="..\src\escena.cpp" />
     <ClCompile Include="..\src\esfera.cpp" />
     <ClCompile Include="..\src\main.cpp" />
+    <ClCompile Include="..\src\malla_poligonal.cpp" />
     <ClCompile Include="..\src\objeto.cpp" />
     <ClCompile Include="..\src\punto.cpp" />
     <ClCompile Include="..\src\ray.cpp" />
     <ClCompile Include="..\src\render.cpp" />
     <ClCompile Include="..\src\tinyxml2.cpp" />
-    <ClCompile Include="cilindro.cpp" />
+    <ClCompile Include="..\src\triangulos.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
