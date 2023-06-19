@@ -17,6 +17,8 @@ class Cilindro : public Objeto {
 	public:
 		Cilindro(double radio, double altura, Punto centro, Punto direccion_eje, Color colorDifuso, Color colorEspecular, double ka, double kd,double coefReflex, double coefTransm, double indRefrac);
 		std::pair<bool, Punto> chequear_colision(Ray rayo);
+		std::pair<bool, Punto> chequear_colision_tapas (Ray rayo);
+		std::pair<bool, Punto> chequear_colision_tronco (Ray rayo);
 		Punto getNormal(Punto punto);
 };
 #endif 

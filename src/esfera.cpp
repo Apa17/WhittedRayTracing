@@ -20,20 +20,9 @@ std::pair<bool, Punto> Esfera::chequear_colision(Ray rayo) {
     Punto   c = this->centro;
     double  r = this->radio;
     double determinante = pow(u*(o-c),2) - ((o-c).getNorma_al_cuadrado() - r*r) * (u.getNorma_al_cuadrado());
-    if(rayo.origen == Punto(0,0,-4) && this->centro == Punto(0,0,-5)){
-        std::cout << "u: " << u << std::endl;
-        std::cout << "o: " << o << std::endl;
-        std::cout << "c: " << c << std::endl;
-        std::cout << "r: " << r << std::endl;
-        std::cout << "determinante: " << determinante << std::endl;
-    }
     if (determinante >= 0) {
         double t1 = -(u*(o-c)) + sqrt(determinante);
         double t2 = -(u*(o-c)) - sqrt(determinante);
-        if(rayo.origen == Punto(0,0,-4) && this->centro == Punto(0,0,-5)){
-            std::cout << "t1: " << t1 << std::endl;
-            std::cout << "t2: " << t2 << std::endl;
-        }
         if (t1 > 0 && t2 > 0) {
             Punto p1 = o + u*t1;
             Punto p2 = o + u*t2;

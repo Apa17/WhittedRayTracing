@@ -17,64 +17,101 @@ Cilindro::Cilindro(double radio, double altura, Punto centro, Punto direccion_ej
     this->centro_tapa2 = centro + (direccion_eje * (-altura/2));
 }
 
-std::pair<bool, Punto> Cilindro::chequear_colision(Ray rayo) {
-    
-    Punto   u = rayo.direccion;
-    Punto   o = rayo.origen;
-    Punto   c = this->centro;
-    Punto   eje = this->direccion_eje;
-    double  r = this->radio;
-    double  h = this->altura;
-    double determinante = pow(u*(o-c),2) - ((o-c).getNorma_al_cuadrado() - r*r) * (u.getNorma_al_cuadrado());
-
+std::pair<bool, Punto> Cilindro::chequear_colision_tapas(Ray rayo) {
     Punto centro_tapa1 = this->centro_tapa1;
     Punto centro_tapa2 = this->centro_tapa2;
+    Punto normal1 = this->direccion_eje;
+    Punto normal2 = this->direccion_eje *-1;
 
-    // Encuentro planos donde estan las tapas
-    double xp = eje.getX();
-    double yp = eje.getY();
-    double zp = eje.getZ();
-    double d1 = - xp*centro_tapa1.getX() - yp*centro_tapa1.getY() - zp*centro_tapa1.getZ();
-    double d2 = - xp*centro_tapa2.getX() - yp*centro_tapa2.getY() - zp*centro_tapa2.getZ();
-
-    // t es el coeficiente con el que o + u*t pertenece al plano
-    double t1 = (xp*(centro_tapa1.getX() - o.getX()) + yp*(centro_tapa1.getY() - o.getY()) + zp*(centro_tapa1.getZ() - o.getZ()))/(xp*u.getX() + yp*u.getY() + zp*u.getZ());
-    double t2 = (xp*(centro_tapa2.getX() - o.getX()) + yp*(centro_tapa2.getY() - o.getY()) + zp*(centro_tapa2.getZ() - o.getZ()))/(xp*u.getX() + yp*u.getY() + zp*u.getZ());
-
-    // puntos a retornar
-    Punto p1;
-    Punto p2;
-    bool b1 = false;
-    bool b2 = false;
-
-    if (t1 > 0){
-        Punto p1 = o + u*t1;
-        if ((p1 - centro_tapa1).getNorma_al_cuadrado() <= r*r){
-            b1 = true;
+    double u1 = normal1 * rayo.direccion.normalized();
+    double u2 = normal2 * rayo.direccion.normalized();
+    if (u1 == 0) {
+        return std::make_pair(false, Punto(0,0,0));
+    }
+    double t1 = ((this->centro_tapa1 - rayo.origen) * normal1) / u1;
+    double t2 = ((this->centro_tapa2 - rayo.origen) * normal2) / u2;
+    Punto Q1 = rayo.origen + rayo.direccion * t1;
+    Punto Q2 = rayo.origen + rayo.direccion * t2;
+    bool x1 = (Q1 - centro_tapa1).getNorma_al_cuadrado() <= this->radio * this->radio;
+    bool x2 = (Q2 - centro_tapa2).getNorma_al_cuadrado() <= this->radio * this->radio;
+    if (t1 > 0 && t2 > 0 && x1 && x2){
+        if ((Q1 - centro_tapa1).getNorma_al_cuadrado() < (Q2 - centro_tapa2).getNorma_al_cuadrado()) {
+            return std::make_pair(true, Q1);
+        } else {
+            return std::make_pair(true, Q2);
         }
+    } else if (t1 > 0 && x1){
+        return std::make_pair(true, Q1);
     }
-    
-    if (t2 > 0){
-        Punto p2 = o + u*t2;
-        if ((p2 - centro_tapa2).getNorma_al_cuadrado() <= r*r)
-            b2 = true;
+    if(t2 > 0 && x2){
+        return std::make_pair(true, Q2);
     }
+    return std::make_pair(false, Punto());
+}
 
-    if (b1){
-        if(b2){
-            if(p1.getNorma_al_cuadrado() < p2.getNorma_al_cuadrado())
-                return std::pair<bool, Punto>(true, p1);
+std::pair<bool, Punto> Cilindro::chequear_colision_tronco(Ray rayo) {
+    Punto   u = rayo.direccion;
+    Punto   v = this->direccion_eje;
+    Punto   o = rayo.origen;
+    Punto   c = this->centro;
+    double  r = this->radio;
+    double  h = this->altura;
+    double a = u * u - (u * v) * (u * v); // a = u^2 - (u.v)^2
+    double b = 2 * (u * (o - c) - (u * v) * (v * (o - c))); // b = 2(u.(o-c) - (u.v)(v.(o-c)))
+    double c1 = (o - c) * (o - c) - (v * (o - c)) * (v * (o - c)) - r * r;
+    double discriminante = b * b - 4 * a * c1;
+    if (discriminante < 0) {
+        return std::make_pair(false, Punto());
+    }
+    double t1 = (-b + sqrt(discriminante)) / (2 * a);
+    double t2 = (-b - sqrt(discriminante)) / (2 * a);
+    Punto Q1 = o + u * t1;
+    Punto Q2 = o + u * t2;
+    double x1 = (Q1 - c) * v;
+    double x2 = (Q2 - c) * v;
+    if (t1 > 0 && t2 > 0 && x1 > -h/2 && x1 < h/2 && x2 > -h/2 && x2 < h/2){
+        if (t1 < t2) {
+            return std::make_pair(true, Q1);
+        } else {
+            return std::make_pair(true, Q2);
+        }
+    } else if (t1 > 0 && x1 > -h/2 && x1 < h/2){
+        return std::make_pair(true, Q1);
+    }
+    if(t2 > 0 && x2 > -h/2 && x2 < h/2){
+        return std::make_pair(true, Q2);
+    }
+    return std::make_pair(false, Punto());
+}
+
+std::pair<bool, Punto> Cilindro::chequear_colision(Ray rayo) {
+    std::pair<bool, Punto> colision_tapas = chequear_colision_tapas(rayo);
+    std::pair<bool, Punto> colision_tronco = chequear_colision_tronco(rayo);
+
+    if (colision_tapas.first) {
+        if (colision_tronco.first) {
+            if ((colision_tapas.second - rayo.origen).getNorma_al_cuadrado() < (colision_tronco.second - rayo.origen).getNorma_al_cuadrado())
+                return colision_tapas;
             else
-                return std::pair<bool, Punto>(true, p2);
+                return colision_tronco;
         }
         else
-            return std::pair<bool, Punto>(true, p1); 
+            return colision_tapas;
     }
-    if (b2)
-        return std::pair<bool, Punto>(true, p2);
-
+    if (colision_tronco.first)
+        return colision_tronco;
+    else
+        return std::pair<bool, Punto>(false, Punto());
 }
 
 Punto Cilindro::getNormal(Punto p) {
-    return this->direccion_eje;
+    double a = this->direccion_eje.cross(p - this->centro).getNorma_al_cuadrado();
+    bool j = (p - this->centro_tapa1).getNorma_al_cuadrado() < (p - this->centro_tapa2).getNorma_al_cuadrado();
+    if(abs(a - this->radio * this->radio) < 1e-4){ //x > y
+        return (p - this->centro).normalized();
+    } else if (j){
+        return this->direccion_eje;
+    } else {
+        return this->direccion_eje * -1;
+    }
 }
