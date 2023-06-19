@@ -25,7 +25,7 @@ double verticalSize = 1;
 // #define ALTO 2160;
 // double horizontalSize = 1.920;
 // double verticalSize = 1.080;
-//
+
 bool imprimi = false;
 Objeto** objetos;
 double cantObjetos;
@@ -132,7 +132,7 @@ Color sombra_rr(int id, Ray r, Punto interseccion, Punto normal, int depth){
 				Punto M = nNormalizado*cos(angulo_incidencia) - V;
 				rayo_t.direccion = M - nNormalizado* cos(angulo_incidencia);
 				rayo_t.origen = interseccion + X;
-				rayo_t.indRefrac = 1;
+				rayo_t.indRefrac = n2;
 			}
 			else {
 				rayo_t.origen = interseccion - X;
@@ -186,10 +186,42 @@ Color traza_rr(Ray ray, int depth){
 	}
 }
 
-h_w_color render() {
+Color traza_rr_2(Ray ray, bool refraccion, Color fondo){
+	int id = -1;
+	std::pair<bool, Punto> colision_id = std::make_pair(false, Punto(0, 0, 0)); 
+	for(int i = 0; i < cantObjetos; i++){
+		std::pair<bool, Punto> colision = objetos[i]->chequear_colision(ray);
+		if(colision.first && (id == -1 || distancia_entre_punto_al_cuadrado(ray.origen, colision.second) < distancia_entre_punto_al_cuadrado(ray.origen, colision_id.second))){
+			id = i;
+			colision_id = colision;
+		}
+	}
+
+	if(colision_id.first){
+		if(refraccion)
+			return Color(1.0, 1.0, 1.0) * objetos[id]->getcoefTransm();
+		return Color(1.0, 1.0, 1.0) * objetos[id]->getcoefReflex();
+	} else {
+		return fondo;
+	}
+}
+
+h_w_color * render() {
 	int altura = ALTO; //i
 	int ancho = ANCHO; //j
 	h_w_color color(
+		altura,
+		w_color(ancho, Color()));
+	h_w_color coefs_refraccion_fondo_blanco(
+		altura,
+		w_color(ancho, Color()));
+	h_w_color coefs_refraccion_fondo_negro(
+		altura,
+		w_color(ancho, Color()));
+	h_w_color coefs_reflexion_fondo_blanco(
+		altura,
+		w_color(ancho, Color()));
+	h_w_color coefs_reflexion_fondo_negro(
 		altura,
 		w_color(ancho, Color()));
 	Ray** rayos = camara.getRays(ancho, altura);
@@ -201,9 +233,19 @@ h_w_color render() {
 			double incrementoJ = (j + 1) * (horizontalSize / ancho);
 			Ray ray = rayos[i][j];
 			color[i][j] = traza_rr(ray, 1);
+			coefs_refraccion_fondo_blanco[i][j] = traza_rr_2(ray, true, Color(1,1,1));
+			coefs_reflexion_fondo_negro[i][j] = traza_rr_2(ray, false, Color(0,0,0));
+			coefs_refraccion_fondo_negro[i][j] = traza_rr_2(ray, true, Color(0,0,0));
+			coefs_reflexion_fondo_blanco[i][j] = traza_rr_2(ray, false, Color(1,1,1));
 		}
 	}
-	return color;
+	h_w_color * res = new h_w_color[5];
+	res[0] = color;
+	res[1] = coefs_refraccion_fondo_blanco;
+	res[2] = coefs_refraccion_fondo_negro;
+	res[3] = coefs_reflexion_fondo_blanco;
+	res[4] = coefs_reflexion_fondo_negro;
+	return res;
 }
 
 void objetos_para_probar(){
@@ -211,7 +253,7 @@ void objetos_para_probar(){
 	luces = new Luz[cantLuces];
 	luces[0] = Luz(Punto(0, -4, -2), Color(1.0, 1.0, 1.0));
 	luces[1] = Luz(Punto(0, -4, -2), Color(1.0, 1.0, 1.0));
-	Objeto * esfera = new Esfera(0.5, Punto(1.2, 0, -3), Color(0.0, 0.5, 0.0), Color(0.0, 0.5, 0.0), 0.01, 0.01, 0.0, 0.98, 2.5); // verde no fuerte
+	Objeto * esfera = new Esfera(0.5, Punto(0.0, 0, -3), Color(0.0, 0.5, 0.0), Color(0.0, 0.5, 0.0), 0.01, 0.01, 0.0, 0.98, 2.5); // verde no fuerte
 	Objeto * esfera2 = new Esfera(2, Punto(0, 0, -4), Color(0.5, 0.5, 0.5), Color(0.5, 0.5, 0.5), 0.1, 0.9, 0.0, 0.0, 1.1); // gris
 	Objeto * esfera3 = new Esfera(0.5, Punto(0, 0, -6), Color(1, 1, 1), Color(1, 1, 1), 0.1, 0.9, 0.0, 0.0, 1); // blanca
 	//pared fondo
@@ -284,7 +326,7 @@ int main() {
 	//renderizar y guardar en png
 	int ancho = ANCHO;
 	int alto = ALTO;
-	h_w_color pixels = render();
+	h_w_color * pixels = render();
 	return renderizar(alto, ancho, pixels);
 	// return 0;
 }
