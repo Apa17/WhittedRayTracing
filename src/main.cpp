@@ -36,6 +36,8 @@ int depth_max = 7;
 int cantLuces;
 int iglobal;
 int jglobal;
+int iglobal_checkear = 240;
+int jglobal_checkear = 458;
 
 //double get_indice_refraccion(Punto x){
 //	double res = 1;
@@ -75,9 +77,6 @@ Color sombra_rr(int id, Ray r, Punto interseccion, Punto normal, int depth){
 			for(int j = 0; j < cantObjetos; j++){
 				std::pair<bool, Punto> aux = objetos[j]->chequear_colision(rayo_s);
 				if(aux.first && objetos[j] != o && distancia_luz > (aux.second - rayo_s.origen).getNorma_al_cuadrado()){
-					if (iglobal == 480 && jglobal == 80) {
-						std::cout << "choca: " << j << endl;
-					}
 					luz_visible = (luz_visible + objetos[j]->getColorDifuso() * (1 - objetos[j]->getcoefTransm())) * objetos[j]->getcoefTransm();
 					luz_visible_bool = false;
 					if(objetos[j]->getcoefTransm() == 0){
@@ -103,7 +102,7 @@ Color sombra_rr(int id, Ray r, Punto interseccion, Punto normal, int depth){
 	if(depth < depth_max){
 		Punto V = r.direccion.normalized() * -1;
 		double NxV = normal.normalized() * V;
-		double angulo_incidencia = acos(abs(normal.normalized() * V));
+		double angulo_incidencia = acos(abs(normal.normalized() * V)); //theta i o theta 1 segun el libro
 		if(o->getcoefReflex() > 0){
 			Ray rayo_r;	
 			rayo_r.origen = interseccion + normal.normalized() * 0.0001;
@@ -125,19 +124,31 @@ Color sombra_rr(int id, Ray r, Punto interseccion, Punto normal, int depth){
 				n2 = 1;
 			}
 			double n1 = r.indRefrac;
-			double angulo_salida = asin(n1/n2*sin(angulo_incidencia));
-			double thetac = asin(n1 / n2);
-			if(angulo_incidencia < thetac){
+			double angulo_salida = asin(n1/n2*sin(angulo_incidencia)); //theta t o theta 2 segun el libro
+			double thetac = asin(n1 / n2); // theta c o angulo critico
+			rayo_t.origen = interseccion + X;
+			if(n1 > n2 || angulo_incidencia < thetac ){
 				//sin(angulo_salida)*Perpendiular_normal - cos(angulo_incidencia)*normal
-				Punto M = nNormalizado*cos(angulo_incidencia) - V;
-				rayo_t.direccion = M - nNormalizado* cos(angulo_incidencia);
-				rayo_t.origen = interseccion + X;
+				Punto M = (nNormalizado*cos(angulo_incidencia) - V)/sin(angulo_incidencia);
+				rayo_t.direccion = M*sin(angulo_salida) - nNormalizado* cos(angulo_salida);
 				rayo_t.indRefrac = n2;
 			}
 			else {
-				rayo_t.origen = interseccion - X;
 				rayo_t.indRefrac = r.indRefrac;
 				rayo_t.direccion = (nNormalizado * 2 * NxV) - V; 
+			}
+			if(iglobal == iglobal_checkear && jglobal == jglobal_checkear){
+				std::cout << "angulo incidencia: " << angulo_incidencia << std::endl;
+				std::cout << "theta c: " << thetac << std::endl;
+				std::cout << "angulo salida: " << angulo_salida << std::endl;
+				std::cout << "r.direccion: " << r.direccion << std::endl;
+				// std::cout << "interseccion: " << interseccion << std::endl;
+				std::cout << "rayo_t.origen: " << rayo_t.origen << std::endl;
+				std::cout << "rayo_t.direccion: " << rayo_t.direccion << std::endl;
+				std::cout << "depth: " << depth << std::endl;
+				std::cout << "n1: " << n1 << std::endl;
+				std::cout << "n2: " << n2 << std::endl;
+				std::cout << "n1/n2: " << n1/n2 << std::endl;
 			}
 			color_t = traza_rr(rayo_t, depth + 1); // escalar color_r por el coeficiente especular y añadir al color;
 			color_t = color_t * o->getcoefTransm();
@@ -162,18 +173,8 @@ Color traza_rr(Ray ray, int depth){
 			colision_id = colision;
 		}
 	}
-	if(iglobal == 480 && jglobal == 80){
+	if(iglobal == iglobal_checkear && jglobal == jglobal_checkear){
 		std::cout << "id: " << id << endl;
-		std::cout << "colision_id.first: " << colision_id.first << endl;
-		std::cout << "colision_id.second: " << colision_id.second << endl;
-		std::cout << "ray.origen: " << ray.origen << endl;
-		std::cout << "ray.direccion: " << ray.direccion << endl;
-		std::cout << "ray.indRefrac: " << ray.indRefrac << endl;
-		std::cout << "depth: " << depth << endl;
-		if(colision_id.first){
-			Punto normal = objetos[id]->getNormal(colision_id.second);
-			std::cout << "normal: " << normal << endl;
-		}
 	}
 	if(colision_id.first){
 		//calcular la normal en la intersección;
@@ -253,9 +254,11 @@ void objetos_para_probar(){
 	luces = new Luz[cantLuces];
 	luces[0] = Luz(Punto(0, -4, -2), Color(1.0, 1.0, 1.0));
 	luces[1] = Luz(Punto(0, -4, -2), Color(1.0, 1.0, 1.0));
-	Objeto * esfera = new Esfera(0.5, Punto(0.0, 0, -3), Color(0.0, 0.5, 0.0), Color(0.0, 0.5, 0.0), 0.01, 0.01, 0.0, 0.98, 2.5); // verde no fuerte
+	Cilindro* cilindro = new Cilindro(1, 1, Punto(0, 0, -5), Punto(0,1,0), Color(0.5, 0.5, 0.5), Color(0.5, 0.5, 0.5), 0.2, 0.8 ,0.0, 0.0, 1.5); //roja mitad refractiva mitad transmitiva
+	
+	Objeto * esfera = new Esfera(0.5, Punto(1.1, 0, -3), Color(0.0, 0.5, 0.0), Color(0.0, 0.5, 0.0), 0.01, 0.01, 0.0, 0.98, 1.5); // verde no fuerte
 	Objeto * esfera2 = new Esfera(2, Punto(0, 0, -4), Color(0.5, 0.5, 0.5), Color(0.5, 0.5, 0.5), 0.1, 0.9, 0.0, 0.0, 1.1); // gris
-	Objeto * esfera3 = new Esfera(0.5, Punto(0, 0, -6), Color(1, 1, 1), Color(1, 1, 1), 0.1, 0.9, 0.0, 0.0, 1); // blanca
+	Objeto * esfera3 = new Esfera(0.5, Punto(0, 0, 6), Color(1, 1, 1), Color(1, 1, 1), 0.1, 0.9, 0.0, 0.0, 1); // blanca
 	//pared fondo
 	Triangulo* triangulof = new Triangulo(Punto(-5, -5, -12), Punto(5, -5, -12), Punto(5, 5, -12), Color(0.0, 0.0, 0.5), Color(0.0, 0.0, 0.5), 0.0, 0.0, 0.0, 2.0, 1.5);
 	Triangulo* triangulo1f = new Triangulo(Punto(5, 5, -12), Punto(-5, 5, -12), Punto(-5, -5, -12), Color(0.0, 0.0, 0.5), Color(0.0, 0.0, 0.5), 0.0, 0.0, 0.0, 2.0, 1.5); 
@@ -263,45 +266,53 @@ void objetos_para_probar(){
 	arrTriangulosf[0] = triangulof;
 	arrTriangulosf[1] = triangulo1f;
 	Malla_Poligonal * mpfondo =  new Malla_Poligonal(arrTriangulosf, 2, Color(0.0, 0.0, 0.5), Color(0.0, 0.0, 0.5), 0.1, 0.9, 0.0, 0.0, 1.5);
+	//pared frente (atras de la camara)
+	Triangulo* triangulof2 = new Triangulo(Punto(5, 5, 2), Punto(5, -5, 2), Punto(-5, -5, 2), Color(0.0, 0.0, 0.5), Color(0.0, 0.0, 0.5), 0.0, 0.0, 0.0, 2.0, 1.5);
+	Triangulo* triangulo1f2 = new Triangulo(Punto(-5, -5, 2), Punto(-5, 5, 2), Punto(5, 5, 2),  Color(0.0, 0.0, 0.5), Color(0.0, 0.0, 0.5), 0.0, 0.0, 0.0, 2.0, 1.5); 
+	Triangulo ** arrTriangulosf2 = new Triangulo*[2];
+	arrTriangulosf2[0] = triangulof2;
+	arrTriangulosf2[1] = triangulo1f2;
+	Malla_Poligonal * mpfrente =  new Malla_Poligonal(arrTriangulosf2, 2, Color(0.5, 0.0, 0.5), Color(0.5, 0.0, 0.5), 0.1, 0.9, 0.0, 0.0, 1.5);
 	//pared izq
-	Triangulo* trianguloi = new Triangulo(Punto(-5, -5, -12), Punto(-5, 5, -2), Punto(-5, -5, -2), Color(0.5, 0.0, 0), Color(0.5, 0.0, 0), 0.0, 0.0, 0.0, 2.0, 1.5);
-	Triangulo* triangulo1i = new Triangulo(Punto(-5, -5, -12), Punto(-5, 5, -12), Punto(-5, 5, -2), Color(0.5, 0.0, 0), Color(0.5, 0.0, 0), 0.0, 0.0, 0.0, 2.0, 1.5);
+	Triangulo* trianguloi = new Triangulo(Punto(-5, -5, -12), Punto(-5, 5, 2), Punto(-5, -5, 2), Color(0.5, 0.0, 0), Color(0.5, 0.0, 0), 0.0, 0.0, 0.0, 2.0, 1.5);
+	Triangulo* triangulo1i = new Triangulo(Punto(-5, -5, -12), Punto(-5, 5, -12), Punto(-5, 5, 2), Color(0.5, 0.0, 0), Color(0.5, 0.0, 0), 0.0, 0.0, 0.0, 2.0, 1.5);
 	Triangulo** arrTriangulosi = new Triangulo * [2];
 	arrTriangulosi[0] = trianguloi;
 	arrTriangulosi[1] = triangulo1i;
 	Malla_Poligonal* mpizq = new Malla_Poligonal(arrTriangulosi, 2, Color(0.0, 0.5, 0), Color(0.0, 0.5, 0), 0.1, 0.9, 0.0, 0.0, 1.5);
 	//pared derecha
-	Triangulo* triangulod = new Triangulo(Punto(5, -5, -2), Punto(5, 5, -2), Punto(5, -5, -12), Color(0.0, 0.5, 0), Color(0.0, 0.5, 0), 0.0, 0.0, 0.0, 2.0, 1.5);
-	Triangulo* triangulo1d = new Triangulo(Punto(5, 5, -2), Punto(5, 5, -12), Punto(5, -5, -12), Color(0.0, 0.5, 0), Color(0.0, 0.5, 0.0), 0.0, 0.0, 0.0, 2.0, 1.5);
+	Triangulo* triangulod = new Triangulo(Punto(5, -5, 2), Punto(5, 5, 2), Punto(5, -5, -12), Color(0.0, 0.5, 0), Color(0.0, 0.5, 0), 0.0, 0.0, 0.0, 2.0, 1.5);
+	Triangulo* triangulo1d = new Triangulo(Punto(5, 5, 2), Punto(5, 5, -12), Punto(5, -5, -12), Color(0.0, 0.5, 0), Color(0.0, 0.5, 0.0), 0.0, 0.0, 0.0, 2.0, 1.5);
 	Triangulo** arrTriangulosd = new Triangulo * [2];
 	arrTriangulosd[0] = triangulod;
 	arrTriangulosd[1] = triangulo1d;
 	Malla_Poligonal* mpder = new Malla_Poligonal(arrTriangulosd, 2, Color(0.5, 0, 0), Color(0.5, 0, 0), 0.1, 0.9, 0.0, 0.0, 1.5);
 	//pared arriba
-	Triangulo* trianguloup = new Triangulo(Punto(-5, 5, -12), Punto(5, 5, -12), Punto(5, 5, -2), Color(0.5, 0.5, 0.5), Color(0.5, 0.5, 0.5), 0.0, 0.0, 0.0, 2.0, 1.5);
-	Triangulo* triangulo1up = new Triangulo(Punto(5, 5, -2), Punto(-5, 5, -2), Punto(-5, 5, -12), Color(0.5, 0.5, 0.5), Color(0.5, 0.5, 0.5), 0.0, 0.0, 0.0, 2.0, 1.5);
+	Triangulo* trianguloup = new Triangulo(Punto(-5, 5, -12), Punto(5, 5, -12), Punto(5, 5, 2), Color(0.5, 0.5, 0.5), Color(0.5, 0.5, 0.5), 0.0, 0.0, 0.0, 2.0, 1.5);
+	Triangulo* triangulo1up = new Triangulo(Punto(5, 5, 2), Punto(-5, 5, 2), Punto(-5, 5, -12), Color(0.5, 0.5, 0.5), Color(0.5, 0.5, 0.5), 0.0, 0.0, 0.0, 2.0, 1.5);
 	Triangulo** arrTriangulosup = new Triangulo * [2];
 	arrTriangulosup[0] = trianguloup;
 	arrTriangulosup[1] = triangulo1up;
 	Malla_Poligonal* mpup = new Malla_Poligonal(arrTriangulosup, 2, Color(0.5, 0.5, 0), Color(0.5, 0.5, 0), 0.1, 0.9, 0.0, 0.0, 1.5);
 	//pared abajo
-	Triangulo* triangulodw = new Triangulo(Punto(5, -5, -2), Punto(5, -5, -12), Punto(-5, -5, -12), Color(0.5, 0.5, 0.5), Color(0.5, 0.5, 0.5), 0.0, 0.0, 0.0, 2.0, 1.5);
-	Triangulo* triangulo1dw = new Triangulo(Punto(-5, -5, -12), Punto(-5, -5, -2), Punto(5, -5, -2), Color(0.5, 0.5, 0.5), Color(0.5, 0.5, 0.5), 0.0, 0.0, 0.0, 2.0, 1.5);
+	Triangulo* triangulodw = new Triangulo(Punto(5, -5, 2), Punto(5, -5, -12), Punto(-5, -5, -12), Color(0.5, 0.5, 0.5), Color(0.5, 0.5, 0.5), 0.0, 0.0, 0.0, 2.0, 1.5);
+	Triangulo* triangulo1dw = new Triangulo(Punto(-5, -5, -12), Punto(-5, -5, 2), Punto(5, -5, 2), Color(0.5, 0.5, 0.5), Color(0.5, 0.5, 0.5), 0.0, 0.0, 0.0, 2.0, 1.5);
 	Triangulo** arrTriangulosdw = new Triangulo * [2];
 	arrTriangulosdw[0] = triangulodw;
 	arrTriangulosdw[1] = triangulo1dw;
 	Malla_Poligonal* mpdown = new Malla_Poligonal(arrTriangulosdw, 2, Color(0.5, 0.5, 0.5), Color(0.5, 0.5, 0.5), 0.1, 0.9, 0.0, 0.0, 1.5);
-	//Cilindro cilindro = Cilindro(1, 2, Punto(0, 0, -5), Punto(0,1,0), Color(0.5, 0.5, 0.5), Color(0.5, 0.5, 0.5), 0.0, 0.0, 1.5); //roja mitad refractiva mitad transmitiva
-	cantObjetos = 7;
+	cantObjetos = 8;
 	objetos = new Objeto*[cantObjetos];
 	objetos[0] = esfera;
-	//objetos[1] = esfera2;
-	objetos[1] = esfera3;
+	objetos[1] = mpfrente;
 	objetos[2] = mpfondo;
 	objetos[3] = mpizq;
 	objetos[4] = mpder;
 	objetos[5] = mpup;
 	objetos[6] = mpdown;
+	objetos[7] = cilindro;
+	//objetos[7] = esfera2;
+	//objetos[8] = esfera3;
 }
 
 int main() {
