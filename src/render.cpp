@@ -14,7 +14,7 @@ using namespace std;
 #define BPP 24
 
 int renderizar(int h, int w, h_w_color * colors, string nombreAGuardar) {
-	for (int i = 0; i<5; i++){
+	for (int i = 0; i<3; i++){
 		h_w_color c = colors[i];	
 		FreeImage_Initialise();
 		FIBITMAP* bitmap = FreeImage_Allocate(w, h, BPP);
@@ -41,7 +41,7 @@ int renderizar(int h, int w, h_w_color * colors, string nombreAGuardar) {
 		string directorio;
 		if (i == 0)
 			directorio = "../output/color";
-		else if (i<3)
+		else if (i<2)
 			directorio = "../output/refraccion";
 		else
 			directorio = "../output/reflexion";

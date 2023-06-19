@@ -213,13 +213,7 @@ h_w_color * render() {
 	h_w_color color(
 		altura,
 		w_color(ancho, Color()));
-	h_w_color coefs_refraccion_fondo_blanco(
-		altura,
-		w_color(ancho, Color()));
 	h_w_color coefs_refraccion_fondo_negro(
-		altura,
-		w_color(ancho, Color()));
-	h_w_color coefs_reflexion_fondo_blanco(
 		altura,
 		w_color(ancho, Color()));
 	h_w_color coefs_reflexion_fondo_negro(
@@ -234,18 +228,14 @@ h_w_color * render() {
 			double incrementoJ = (j + 1) * (horizontalSize / ancho);
 			Ray ray = rayos[i][j];
 			color[i][j] = traza_rr(ray, 1);
-			coefs_refraccion_fondo_blanco[i][j] = traza_rr_2(ray, true, Color(1,1,1));
 			coefs_reflexion_fondo_negro[i][j] = traza_rr_2(ray, false, Color(0,0,0));
 			coefs_refraccion_fondo_negro[i][j] = traza_rr_2(ray, true, Color(0,0,0));
-			coefs_reflexion_fondo_blanco[i][j] = traza_rr_2(ray, false, Color(1,1,1));
 		}
 	}
-	h_w_color * res = new h_w_color[5];
+	h_w_color * res = new h_w_color[3];
 	res[0] = color;
-	res[1] = coefs_refraccion_fondo_blanco;
-	res[2] = coefs_refraccion_fondo_negro;
-	res[3] = coefs_reflexion_fondo_blanco;
-	res[4] = coefs_reflexion_fondo_negro;
+	res[1] = coefs_refraccion_fondo_negro;
+	res[2] = coefs_reflexion_fondo_negro;
 	return res;
 }
 
