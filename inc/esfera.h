@@ -2,17 +2,17 @@
 #define ESFERA_H
 
 #include "objeto.h"
-#include "punto.h"
+#include "vector.h"
 #include <tuple>
 
 class Esfera : public Objeto {
 	private:
 		double radio;
-		Punto centro;
+		Vector centro;
 	public:
-		Esfera(double radio, Punto centro, Color colorDifuso, Color colorEspecular, double ka, double kd, double coefReflex, double coefTransm, double indRefrac);
-		std::pair<bool, Punto> chequear_colision(Ray rayo);
-		Punto getNormal(Punto punto);
+		Esfera(double radio, Vector centro, Color colorDifuso, Color colorEspecular, double ka, double kd, double coefReflex, double coefTransm, double indRefrac);
+		std::pair<bool, Vector> chequear_colision(Ray rayo);
+		Vector getNormal(Vector vector);
 		void Print();
 };
 #endif 

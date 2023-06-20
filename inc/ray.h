@@ -1,11 +1,11 @@
 #ifndef RAY_H
 #define RAY_H
 
-#include "punto.h"
+#include "vector.h"
 
 struct Ray {
-	Punto origen;
-	Punto direccion;
+	Vector origen;
+	Vector direccion;
 	double indRefrac;
 };
 #endif

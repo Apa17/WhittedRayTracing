@@ -2,18 +2,18 @@
 #define TRIANGULO_H
 
 #include "objeto.h"
-#include "punto.h"
+#include "vector.h"
 
 class Triangulo {
 	private:
-        Punto a;
-        Punto b;
-        Punto c;
-        Punto normal;
+        Vector a;
+        Vector b;
+        Vector c;
+        Vector normal;
 	public:
-		Triangulo(Punto a, Punto b, Punto c);
-		std::pair<bool, Punto> chequear_colision(Ray rayo);
-		Punto getNormal(Punto punto);
+		Triangulo(Vector a, Vector b, Vector c);
+		std::pair<bool, Vector> chequear_colision(Ray rayo);
+		Vector getNormal(Vector vector);
 		friend std::ostream& operator<<(std::ostream& os, const Triangulo& obj);
 };
 #endif 

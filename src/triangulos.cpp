@@ -1,37 +1,37 @@
 #include "../inc/triangulos.h"
 #include <iostream>
 
-Triangulo::Triangulo(Punto a, Punto b, Punto c) {
+Triangulo::Triangulo(Vector a, Vector b, Vector c) {
     this->a = a;
     this->b = b;
     this->c = c;
     this->normal = (b-a).cross(c-a).normalized();
 }
 
-Punto Triangulo::getNormal(Punto punto) {
+Vector Triangulo::getNormal(Vector vector) {
     return this->normal;
 }
 
-std::pair<bool, Punto> Triangulo::chequear_colision(Ray rayo){
+std::pair<bool, Vector> Triangulo::chequear_colision(Ray rayo){
     double u= this->normal * rayo.direccion;
-    Punto actreves = this->normal.cross(this->a - this->c);
+    Vector actreves = this->normal.cross(this->a - this->c);
     actreves = actreves / ((this->b-this->a)*actreves);
-    Punto abtreves = this->normal.cross(this->b - this->a);
+    Vector abtreves = this->normal.cross(this->b - this->a);
     abtreves = abtreves / ((this->c-this->a)*abtreves);
     if (u == 0) {
-        return std::make_pair(false, Punto(0,0,0));
+        return std::make_pair(false, Vector(0,0,0));
     }
     double t = ((this->a - rayo.origen) * this->normal) / u;
     if (t < 0) {
-        return std::make_pair(false, Punto(0,0,0));
+        return std::make_pair(false, Vector(0,0,0));
     }
 
-    Punto Q = rayo.origen + rayo.direccion * t;
+    Vector Q = rayo.origen + rayo.direccion * t;
     double gamma = (Q - this->c) * actreves;
     double beta = (Q - this->b) * abtreves;
     double alfa = 1 - gamma - beta;
     if (gamma < -1e-4 || gamma > 1 + 1e-4 || beta < -1e-4 || beta > 1 + 1e-4 || alfa < -1e-4 || alfa > 1 + 1e-4) {
-        return std::make_pair(false, Punto(0,0,0));
+        return std::make_pair(false, Vector(0,0,0));
     } else {
         return std::make_pair(true, Q);
     }

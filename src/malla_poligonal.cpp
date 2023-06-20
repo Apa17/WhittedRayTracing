@@ -11,33 +11,33 @@ Malla_Poligonal::Malla_Poligonal(std::vector<Triangulo> poligonos, Color colorDi
     this->indRefrac = indRefrac;
 }
 
-Punto Malla_Poligonal::getNormal(Punto punto) {
+Vector Malla_Poligonal::getNormal(Vector vector) {
     Ray rayo;
-    rayo.origen = Punto(0,0,0);
-    rayo.direccion = punto;
-    std::pair<bool, Punto> colision = std::make_pair(false, Punto(0,0,0));
-    Punto res = Punto();
+    rayo.origen = Vector(0,0,0);
+    rayo.direccion = vector;
+    std::pair<bool, Vector> colision = std::make_pair(false, Vector(0,0,0));
+    Vector res = Vector();
     for (Triangulo poligono: this->poligonos) {
-        std::pair<bool, Punto> colisionActual = poligono.chequear_colision(rayo);
+        std::pair<bool, Vector> colisionActual = poligono.chequear_colision(rayo);
         if (colisionActual.first) {
             if (colision.first) {
                 if ((colisionActual.second - rayo.origen).normalized() < (colision.second - rayo.origen).normalized()) {
                     colision = colisionActual;
-                    res = poligono.getNormal(punto);
+                    res = poligono.getNormal(vector);
                 }
             } else {
                 colision = colisionActual;
-                res = poligono.getNormal(punto);
+                res = poligono.getNormal(vector);
             }
         }
     }
     return res;
 }
 
-std::pair<bool, Punto> Malla_Poligonal::chequear_colision(Ray rayo){
-    std::pair<bool, Punto> colision = std::make_pair(false, Punto(0,0,0));
+std::pair<bool, Vector> Malla_Poligonal::chequear_colision(Ray rayo){
+    std::pair<bool, Vector> colision = std::make_pair(false, Vector(0,0,0));
     for (Triangulo triangulo: this->poligonos) {
-        std::pair<bool, Punto> colisionActual = triangulo.chequear_colision(rayo);
+        std::pair<bool, Vector> colisionActual = triangulo.chequear_colision(rayo);
         if (colisionActual.first) {
             if (colision.first) {
                 if ((colisionActual.second - rayo.origen).normalized() < (colision.second - rayo.origen).normalized()) {

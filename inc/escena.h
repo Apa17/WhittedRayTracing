@@ -23,7 +23,7 @@ private:
 	Camara camara;
 	Color traza_rr(Ray ray, int depth);
 	Color traza_rr_2(Ray ray, bool refraccion, Color fondo);
-	Color sombra_rr(Objeto* o, Ray r, Punto interseccion, Punto normal, int depth);
+	Color sombra_rr(Objeto* o, Ray r, Vector interseccion, Vector normal, int depth);
 public:
 	Escena(string);
 	int render();

@@ -2,7 +2,7 @@
 #include "tinyxml2.h"
 #include <tuple>
 #include "Camara.h"
-#include "Punto.h"
+#include "Vector.h"
 #include "Esfera.h"
 #include "Cilindro.h"
 #include "Luz.h"
@@ -34,7 +34,7 @@ int jglobal;
 int iglobal_checkear = 240;
 int jglobal_checkear = 458;
 
-Color Escena::sombra_rr(Objeto* o, Ray r, Punto interseccion, Punto normal, int depth){
+Color Escena::sombra_rr(Objeto* o, Ray r, Vector interseccion, Vector normal, int depth){
 	// Rayo vista = r.origen
 	// Ri = vector reflejado
 	// Os lambda el color del objeto (color especular)
@@ -43,9 +43,9 @@ Color Escena::sombra_rr(Objeto* o, Ray r, Punto interseccion, Punto normal, int 
 	// color = término del ambiente;
 	Color c = ia * o->getColorDifuso() * o->getcoefAmbiente();
 	Color color_s = c;
-	Punto nNormalizado = normal.normalized();
+	Vector nNormalizado = normal.normalized();
 	for(Luz l: luces) { // for (cada luz) {
-		//	rayo_s = rayo desde el punto a la luz;
+		//	rayo_s = rayo desde el vector a la luz;
 		Ray rayo_s;
 		rayo_s.origen = interseccion + nNormalizado * 0.0001;
 		rayo_s.indRefrac = r.indRefrac;
@@ -56,7 +56,7 @@ Color Escena::sombra_rr(Objeto* o, Ray r, Punto interseccion, Punto normal, int 
 			Color luz_visible = Color(1, 1, 1);
 			bool luz_visible_bool = true;
 			for(Objeto* obj: objetos){
-				std::pair<bool, Punto> aux = obj->chequear_colision(rayo_s);
+				std::pair<bool, Vector> aux = obj->chequear_colision(rayo_s);
 				if(aux.first && obj != o && distancia_luz > (aux.second - rayo_s.origen).getNorma_al_cuadrado()){
 					luz_visible = (luz_visible + obj->getColorDifuso() * (1 - obj->getcoefTransm())) * obj->getcoefTransm();
 					luz_visible_bool = false;
@@ -66,12 +66,12 @@ Color Escena::sombra_rr(Objeto* o, Ray r, Punto interseccion, Punto normal, int 
 				}
 			}
 			double dl2 = distancia_entre_punto_al_cuadrado(interseccion, l.posicion);
-			double b = 0.0000002;
-			double fatt = 1;
+			double b = 0.002;
+			double fatt = 1/(b*dl2);
 			Color ip = l.colour;
 			color_s = color_s  + (ip * fatt * o->getcoefDifuso() * NxL * o->getColorDifuso());
-			Punto V = (r.direccion.normalized() * - 1);
-			Punto R = (nNormalizado * 2 * NxL) - rayo_s.direccion.normalized();
+			Vector V = (r.direccion.normalized() * - 1);
+			Vector R = (nNormalizado * 2 * NxL) - rayo_s.direccion.normalized();
 			double cosalfa = R * V;
 			color_s = color_s + o->getColorEspecular() * o->getcoefReflex() * fatt * ip * pow(cosalfa,40);
 			color_s = color_s * luz_visible;
@@ -81,7 +81,7 @@ Color Escena::sombra_rr(Objeto* o, Ray r, Punto interseccion, Punto normal, int 
 	Color color_r = Color(0.0, 0.0, 0.0);
 	Color color_t = Color(0.0, 0.0, 0.0);
 	if(depth < depth_max){
-		Punto V = r.direccion.normalized() * -1;
+		Vector V = r.direccion.normalized() * -1;
 		double NxV = normal.normalized() * V;
 		double angulo_incidencia = acos(abs(normal.normalized() * V)); //theta i o theta 1 segun el libro
 		if(o->getcoefReflex() > 0){
@@ -93,7 +93,7 @@ Color Escena::sombra_rr(Objeto* o, Ray r, Punto interseccion, Punto normal, int 
 			color_r = color_r * o->getcoefReflex(); // escalar color_r por el coeficiente especular y añadir al color;
 		}
 		if(o->getcoefTransm() > 0){
-			Punto X;
+			Vector X;
 			double n2;
 			Ray rayo_t;
 			if (nNormalizado * V > 0){
@@ -110,7 +110,7 @@ Color Escena::sombra_rr(Objeto* o, Ray r, Punto interseccion, Punto normal, int 
 			rayo_t.origen = interseccion + X;
 			if(n1 > n2 || angulo_incidencia < thetac ){
 				//sin(angulo_salida)*Perpendiular_normal - cos(angulo_incidencia)*normal
-				Punto M = (nNormalizado*cos(angulo_incidencia) - V)/sin(angulo_incidencia);
+				Vector M = (nNormalizado*cos(angulo_incidencia) - V)/sin(angulo_incidencia);
 				rayo_t.direccion = M*sin(angulo_salida) - nNormalizado* cos(angulo_salida);
 				rayo_t.indRefrac = n2;
 			}
@@ -118,19 +118,19 @@ Color Escena::sombra_rr(Objeto* o, Ray r, Punto interseccion, Punto normal, int 
 				rayo_t.indRefrac = r.indRefrac;
 				rayo_t.direccion = (nNormalizado * 2 * NxV) - V; 
 			}
-			if(iglobal == iglobal_checkear && jglobal == jglobal_checkear){
-				std::cout << "angulo incidencia: " << angulo_incidencia << std::endl;
-				std::cout << "theta c: " << thetac << std::endl;
-				std::cout << "angulo salida: " << angulo_salida << std::endl;
-				std::cout << "r.direccion: " << r.direccion << std::endl;
-				// std::cout << "interseccion: " << interseccion << std::endl;
-				std::cout << "rayo_t.origen: " << rayo_t.origen << std::endl;
-				std::cout << "rayo_t.direccion: " << rayo_t.direccion << std::endl;
-				std::cout << "depth: " << depth << std::endl;
-				std::cout << "n1: " << n1 << std::endl;
-				std::cout << "n2: " << n2 << std::endl;
-				std::cout << "n1/n2: " << n1/n2 << std::endl;
-			}
+			// if(iglobal == iglobal_checkear && jglobal == jglobal_checkear){
+			// 	std::cout << "angulo incidencia: " << angulo_incidencia << std::endl;
+			// 	std::cout << "theta c: " << thetac << std::endl;
+			// 	std::cout << "angulo salida: " << angulo_salida << std::endl;
+			// 	std::cout << "r.direccion: " << r.direccion << std::endl;
+			// 	// std::cout << "interseccion: " << interseccion << std::endl;
+			// 	std::cout << "rayo_t.origen: " << rayo_t.origen << std::endl;
+			// 	std::cout << "rayo_t.direccion: " << rayo_t.direccion << std::endl;
+			// 	std::cout << "depth: " << depth << std::endl;
+			// 	std::cout << "n1: " << n1 << std::endl;
+			// 	std::cout << "n2: " << n2 << std::endl;
+			// 	std::cout << "n1/n2: " << n1/n2 << std::endl;
+			// }
 			color_t = traza_rr(rayo_t, depth + 1); // escalar color_r por el coeficiente especular y añadir al color;
 			color_t = color_t * o->getcoefTransm();
 		}
@@ -144,10 +144,10 @@ Color Escena::traza_rr(Ray ray, int depth){
 		return Color(0.1, 0.1, 0.1);
 	}
 
-	std::pair<bool, Punto> colision_id = std::make_pair(false, Punto(0, 0, 0)); 
+	std::pair<bool, Vector> colision_id = std::make_pair(false, Vector(0, 0, 0)); 
 	Objeto* oid = nullptr;
 	for(Objeto* o : objetos){
-		std::pair<bool, Punto> colision = o->chequear_colision(ray);
+		std::pair<bool, Vector> colision = o->chequear_colision(ray);
 		if(colision.first && (oid == nullptr || distancia_entre_punto_al_cuadrado(ray.origen, colision.second) < distancia_entre_punto_al_cuadrado(ray.origen, colision_id.second))){
 			oid = o;
 			colision_id = colision;
@@ -155,7 +155,7 @@ Color Escena::traza_rr(Ray ray, int depth){
 	}
 	if(colision_id.first){
 		//calcular la normal en la intersección;
-		Punto normal = oid->getNormal(colision_id.second);
+		Vector normal = oid->getNormal(colision_id.second);
 		// return sombra_RR(obj. intersecado más cercano, rayo, intersección, normal, profundidad);
 		return sombra_rr(oid, ray, colision_id.second, normal, depth);
 		//return color(0.6, 0.6, 0.6, 1.0);
@@ -166,9 +166,9 @@ Color Escena::traza_rr(Ray ray, int depth){
 
 Color Escena::traza_rr_2(Ray ray, bool refraccion, Color fondo){
 	Objeto* oid = nullptr;
-	std::pair<bool, Punto> colision_id = std::make_pair(false, Punto(0, 0, 0)); 
+	std::pair<bool, Vector> colision_id = std::make_pair(false, Vector(0, 0, 0)); 
 	for(Objeto* o : objetos){
-		std::pair<bool, Punto> colision = o->chequear_colision(ray);
+		std::pair<bool, Vector> colision = o->chequear_colision(ray);
 		if(colision.first && (oid == nullptr || distancia_entre_punto_al_cuadrado(ray.origen, colision.second) < distancia_entre_punto_al_cuadrado(ray.origen, colision_id.second))){
 			oid = o;
 			colision_id = colision;
@@ -227,50 +227,49 @@ Escena::Escena(string s) {
 	this->ancho = stoi(xmlEscena->FirstChildElement("AnchoImagen")->GetText());
 	this->altura = stoi(xmlEscena->FirstChildElement("AlturaImagen")->GetText());
 	XMLElement* xmlCamara = xmlEscena->FirstChildElement("camara");
-	if(xmlCamara != NULL){
-		//cargar camara
-		double xAux, yAux, zAux;
-		const char* xAuxchar; 
-		const char* yAuxchar;
-		const char* zAuxchar;
-		XMLElement * aux;
-		aux = xmlCamara->FirstChildElement("posicion");
-		xAuxchar = aux->FirstChildElement("x")->GetText();
-		xAux = stod(xAuxchar);
-		yAuxchar = aux->FirstChildElement("y")->GetText();
-		yAux = stod(yAuxchar);
-		zAuxchar = aux->FirstChildElement("z")->GetText();
-		zAux = stod(zAuxchar);
-		Punto posCamara = Punto(xAux, yAux, zAux);
-
-
-		aux = xmlCamara->FirstChildElement("lookAtVector");
-		xAuxchar = aux->FirstChildElement("x")->GetText();
-		xAux = stod(xAuxchar);
-		yAuxchar = aux->FirstChildElement("y")->GetText();
-		yAux = stod(yAuxchar);
-		zAuxchar = aux->FirstChildElement("z")->GetText();
-		zAux = stod(zAuxchar);
-		Punto lookAtCamara = Punto(xAux, yAux, zAux);
-
-		aux = xmlCamara->FirstChildElement("upVector");
-		xAuxchar = aux->FirstChildElement("x")->GetText();
-		xAux = stod(xAuxchar);
-		yAuxchar = aux->FirstChildElement("y")->GetText();
-		yAux = stod(yAuxchar);
-		zAuxchar = aux->FirstChildElement("z")->GetText();
-		zAux = stod(zAuxchar);
-		Punto upVector = Punto(xAux, yAux, zAux);
-
-		const char* auxChar;
-		auxChar = xmlCamara->FirstChildElement("horizontalSize")->GetText();
-		this->horizontalSize = stod(auxChar);
-		auxChar = xmlCamara->FirstChildElement("verticalSize")->GetText();
-		this->verticalSize = stod(auxChar);
-		this->camara = Camara(posCamara, upVector, lookAtCamara, verticalSize, horizontalSize);
-	}else{
+	double xcamara, ycamara, zcamara;
+	if(xmlCamara == nullptr){
 		throw std::runtime_error("No se encontro la camara");
 	}
+	//cargar camara
+	const char* xAuxchar; 
+	const char* yAuxchar;
+	const char* zAuxchar;
+	XMLElement * aux;
+	aux = xmlCamara->FirstChildElement("posicion");
+	xAuxchar = aux->FirstChildElement("x")->GetText();
+	xcamara = stod(xAuxchar);
+	yAuxchar = aux->FirstChildElement("y")->GetText();
+	ycamara = stod(yAuxchar);
+	zAuxchar = aux->FirstChildElement("z")->GetText();
+	zcamara = stod(zAuxchar);
+	Vector posCamara = Vector(xcamara, ycamara, zcamara);
+
+	double xAux, yAux, zAux;
+	aux = xmlCamara->FirstChildElement("lookAtVector");
+	xAuxchar = aux->FirstChildElement("x")->GetText();
+	xAux = stod(xAuxchar);
+	yAuxchar = aux->FirstChildElement("y")->GetText();
+	yAux = stod(yAuxchar);
+	zAuxchar = aux->FirstChildElement("z")->GetText();
+	zAux = stod(zAuxchar);
+	Vector lookAtCamara = Vector(xAux, yAux, zAux);
+
+	aux = xmlCamara->FirstChildElement("upVector");
+	xAuxchar = aux->FirstChildElement("x")->GetText();
+	xAux = stod(xAuxchar);
+	yAuxchar = aux->FirstChildElement("y")->GetText();
+	yAux = stod(yAuxchar);
+	zAuxchar = aux->FirstChildElement("z")->GetText();
+	zAux = stod(zAuxchar);
+	Vector upVector = Vector(xAux, yAux, zAux);
+
+	const char* auxChar;
+	auxChar = xmlCamara->FirstChildElement("horizontalSize")->GetText();
+	this->horizontalSize = stod(auxChar);
+	auxChar = xmlCamara->FirstChildElement("verticalSize")->GetText();
+	this->verticalSize = stod(auxChar);
+	this->camara = Camara(posCamara, upVector, lookAtCamara, verticalSize, horizontalSize);
 	XMLElement* xmlLuces = xmlEscena->FirstChildElement("luces");
 	if(xmlLuces != NULL) {
 		//cargar luces
@@ -295,7 +294,7 @@ Escena::Escena(string s) {
 			x = stod(xChar);
 			y = stod(yChar);
 			z = stod(zChar);
-			Punto p = Punto(x, y, z);
+			Vector p = Vector(x, y, z);
 
 			XMLElement* xmlColor = xmlLuz->FirstChildElement("color");
 			rChar = xmlColor->FirstChildElement("r")->GetText();
@@ -332,7 +331,7 @@ Escena::Escena(string s) {
 			ycentro = stod(qAuxChar);
 			qAuxChar = xmlEsfera->FirstChildElement("centro")->FirstChildElement("z")->GetText();
 			zcentro = stod(qAuxChar);
-			Punto centro = Punto(xcentro, ycentro, zcentro);
+			Vector centro = Vector(xcentro - xcamara, ycentro - ycamara, zcentro - zcamara);
 
 			qAuxChar = xmlEsfera->FirstChildElement("colorDifuso")->FirstChildElement("r")->GetText();
 			r = stod(qAuxChar);
@@ -391,7 +390,7 @@ Escena::Escena(string s) {
 			yaux = stod(qAuxChar);
 			qAuxChar = xmlCilindro->FirstChildElement("centro")->FirstChildElement("z")->GetText();
 			zaux = stod(qAuxChar);
-			Punto centro = Punto(xaux, yaux, zaux);
+			Vector centro = Vector(xaux - xcamara, yaux - ycamara, zaux - zcamara);
 
 			qAuxChar = xmlCilindro->FirstChildElement("direccion_eje")->FirstChildElement("x")->GetText();
 			xaux = stod(qAuxChar);
@@ -399,7 +398,7 @@ Escena::Escena(string s) {
 			yaux = stod(qAuxChar);
 			qAuxChar = xmlCilindro->FirstChildElement("direccion_eje")->FirstChildElement("z")->GetText();
 			zaux = stod(qAuxChar);
-			Punto direccion_eje = Punto(xaux, yaux, zaux);
+			Vector direccion_eje = Vector(xaux, yaux, zaux);
 
 			qAuxChar = xmlCilindro->FirstChildElement("colorDifuso")->FirstChildElement("r")->GetText();
 			r = stod(qAuxChar);
@@ -456,7 +455,7 @@ Escena::Escena(string s) {
 				throw std::runtime_error("No hay triangulos");
 			}
 			while(xmlTriangulo){
-				Punto vertices[3];
+				Vector vertices[3];
 				XMLElement* xmlVertice = xmlTriangulo->FirstChildElement("vertice");
 				for(int i=0; i<3; i++){
 					double xaux, yaux, zaux;
@@ -469,7 +468,7 @@ Escena::Escena(string s) {
 					yaux = stod(qAuxChar);
 					qAuxChar = xmlVertice->FirstChildElement("z")->GetText();
 					zaux = stod(qAuxChar);
-					vertices[i] = Punto(xaux, yaux, zaux);
+					vertices[i] = Vector(xaux - xcamara, yaux - ycamara, zaux - zcamara);
 					xmlVertice = xmlVertice->NextSiblingElement("vertice");
 				}
 				triangulos.push_back(Triangulo(vertices[0], vertices[1], vertices[2]));
@@ -516,30 +515,27 @@ Escena::Escena(string s) {
 		
 	}
 	this->objetos = newobjetos;
-	for(Objeto* obj : objetos){
-		 obj->Print();
-	}
 	this->luces = newluces;
 
 	std::cout << "Escena cargada" << std::endl;
 }
 
 void Escena::debug(){
-	 std::cout << "ancho " << ancho << std::endl;
-	 std::cout << "altura " << altura << std::endl;
-	 std::cout << "Camara posicion: " << camara.getPosicion() << std::endl;
-	 std::cout << "Camara mirando a: " << camara.getLookatVector() << std::endl;
-	 std::cout << "Camara arriba: " << camara.getUpVector() << std::endl;
-	 std::cout << "Camara horizontal: " << camara.getHorizontalSize() << std::endl;
-	 std::cout << "Camara vertical: " << camara.getVerticalSize() << std::endl;
-	 std::cout << "Luces size: " << luces.size() << std::endl;
-	 std::cout << "Objetos size: " << objetos.size() << std::endl;
-	std::cout<< "=========================================" << std::endl;
-	std::cout<< "=========================================" << std::endl;
-	std::cout<< "=========================================" << std::endl;
+	Ray r;
+	r.origen = Vector(0,0,0);
+	r.direccion = Vector(0,0,1);
+	r.indRefrac = 1;
+	
 	for(Objeto* obj : objetos){
-		 obj->Print();
+		obj->Print();
+		std::pair<bool, Vector> res = obj->chequear_colision(r);
+		std::cout << "Objeto chequear collision: " ;
+		res.first ? std::cout << "True" : std::cout << "False";
+		std::cout << res.second << std::endl;
+		std::cout << std::endl;std::cout << std::endl;
 	}
+
+	// camara.getRays(this->ancho, this->altura);
 
 	/*for(Luz luz : luces){
 		std::cout << "Luz posicion: " << luz.posicion << std::endl;

@@ -33,7 +33,7 @@
     <ClInclude Include="..\inc\objeto.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\inc\punto.h">
+    <ClInclude Include="..\inc\vector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\inc\ray.h">
@@ -74,7 +74,7 @@
     <ClCompile Include="..\src\esfera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\punto.cpp">
+    <ClCompile Include="..\src\vector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ray.cpp">

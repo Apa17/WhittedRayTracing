@@ -91,7 +91,7 @@
     <ClInclude Include="..\inc\luz.h" />
     <ClInclude Include="..\inc\malla_poligonal.h" />
     <ClInclude Include="..\inc\objeto.h" />
-    <ClInclude Include="..\inc\punto.h" />
+    <ClInclude Include="..\inc\vector.h" />
     <ClInclude Include="..\inc\ray.h" />
     <ClInclude Include="..\inc\render.h" />
     <ClInclude Include="..\inc\tinyxml2.h" />
@@ -107,7 +107,7 @@
     <ClCompile Include="..\src\main.cpp" />
     <ClCompile Include="..\src\malla_poligonal.cpp" />
     <ClCompile Include="..\src\objeto.cpp" />
-    <ClCompile Include="..\src\punto.cpp" />
+    <ClCompile Include="..\src\vector.cpp" />
     <ClCompile Include="..\src\ray.cpp" />
     <ClCompile Include="..\src\render.cpp" />
     <ClCompile Include="..\src\tinyxml2.cpp" />

@@ -1,0 +1,20 @@
+escena 1
+Sin paredes, una esfera y un cilindro
+escena 2
+con paredes, una esfera y un cilindro 
+Las paredes tienen:	<ka>0.1</ka>
+			<kd>0.8</kd>
+			<ks>0.05</ks>
+			<kt>0.05</kt>
+escena 3
+con paredes, una esfera y un cilindro 
+Las paredes tienen:	<ka>0.1</ka>
+			<kd>0.8</kd>
+			<ks>0.05</ks>
+			<kt>0.05</kt>
+exceptuando la de fondo que tiene:
+			<ka>0.1</ka>
+			<kd>0.1</kd>
+			<ks>0.05</ks>
+			<kt>0.75</kt>
+

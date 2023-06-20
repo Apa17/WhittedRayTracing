@@ -2,15 +2,15 @@
 #define OBJETO_H
 
 #include "ray.h"
-#include "punto.h"
+#include "vector.h"
 #include "color.h"
 #include <tuple>
 #include <iostream>
 
 class Objeto {
 	public: 
-		virtual std::pair<bool, Punto> chequear_colision(Ray rayo) = 0;
-		virtual Punto getNormal(Punto punto) = 0;
+		virtual std::pair<bool, Vector> chequear_colision(Ray rayo) = 0;
+		virtual Vector getNormal(Vector vector) = 0;
 		double getcoefAmbiente();
 		double getcoefDifuso();
 		double getcoefReflex();
@@ -19,7 +19,7 @@ class Objeto {
 		Color getColorDifuso();
 		Color getColorEspecular();
 		virtual void Print() = 0;
-		//double isInside(Punto punto);
+		//double isInside(Vector vector);
 	protected:
 		Color colorDifuso;
 		Color colorEspecular;

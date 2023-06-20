@@ -1,21 +1,21 @@
 #ifndef CAMARA_H
 #define CAMARA_H
-#include "punto.h"
+#include "vector.h"
 #include "../inc/ray.h"
 
 class Camara {
     private:
-        Punto posicion;
-        Punto upVector;
-        Punto lookatVector;
+        Vector posicion;
+        Vector upVector;
+        Vector lookatVector;
         double verticalSize;
         double horizontalSize;
     public:
-        Camara(Punto posicion, Punto upVector, Punto lookatVector, double verticalSize, double horizontalSize);
+        Camara(Vector posicion, Vector upVector, Vector lookatVector, double verticalSize, double horizontalSize);
         Camara();
-        Punto getPosicion();
-        Punto getUpVector();
-        Punto getLookatVector();
+        Vector getPosicion();
+        Vector getUpVector();
+        Vector getLookatVector();
         double getVerticalSize();
         double getHorizontalSize();
         double getDistanceToViewPlane();

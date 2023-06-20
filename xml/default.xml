@@ -35,9 +35,9 @@
 	<luces>
 		<luz>
 			<posicion>
-				<x>1</x>
-				<y>1</y>
-				<z>0</z>
+				<x>0</x>
+				<y>9</y>
+				<z>-1</z>
 			</posicion>
 			<color>
 				<r>255</r>
@@ -47,9 +47,9 @@
 		</luz>
 		<luz>
 			<posicion>
-				<x>-1</x>
-				<y>1</y>
-				<z>0</z>
+				<x>0</x>
+				<y>9</y>
+				<z>22</z>
 			</posicion>
 			<color>
 				<r>255</r>
@@ -63,7 +63,7 @@
 			<radio>1</radio>
 			<centro>
 				<x>-3</x>
-				<y>0</y>
+				<y>1</y>
 				<z>20</z>
 			</centro>
 			<colorDifuso>
@@ -87,7 +87,7 @@
 			<altura>2</altura>
 			<centro>
 				<x>3</x>
-				<y>0</y>
+				<y>-1</y>
 				<z>17</z>
 			</centro>
 			<direccion_eje>
@@ -115,27 +115,128 @@
 			<triangulos>
 				<triangulo>
 					<vertice>
-						<x>-10</x>
-						<y>-10</y>
-						<z>24</z>
-					</vertice>
-					<vertice>
-						<x>10</x>
-						<y>-10</y>
-						<z>24</z>
-					</vertice>
-					<vertice>
 						<x>10</x>
 						<y>10</y>
+						<z>24</z>
+					</vertice>
+					<vertice>
+						<x>10</x>
+						<y>-10</y>
+						<z>24</z>
+					</vertice>
+					<vertice>
+						<x>-10</x>
+						<y>-10</y>
 						<z>24</z>
 					</vertice>
 				</triangulo>
 				<triangulo>
 					<vertice>
+						<x>-10</x>
+						<y>-10</y>
+						<z>24</z>
+					</vertice>
+					<vertice>
+						<x>-10</x>
+						<y>10</y>
+						<z>24</z>
+					</vertice>
+					<vertice>
 						<x>10</x>
 						<y>10</y>
 						<z>24</z>
 					</vertice>
+				</triangulo>
+			</triangulos>
+			<colorDifuso>
+				<r>155</r>
+				<g>155</g>
+				<b>155</b>
+			</colorDifuso>
+			<colorEspecular>
+				<r>155</r>
+				<g>155</g>
+				<b>155</b>
+			</colorEspecular>
+			<ka>0.1</ka>
+			<kd>0.8</kd>
+			<ks>0.05</ks>
+			<kt>0.05</kt>
+			<indRefrac>1.0</indRefrac>
+		</malla_poligonal>
+		<malla_poligonal>
+			<triangulos>
+				<triangulo>
+					<vertice>
+						<x>10</x>
+						<y>10</y>
+						<z>-2</z>
+					</vertice>
+					<vertice>
+						<x>-10</x>
+						<y>-10</y>
+						<z>-2</z>
+					</vertice>
+					<vertice>
+						<x>10</x>
+						<y>-10</y>
+						<z>-2</z>
+					</vertice>
+				</triangulo>
+				<triangulo>
+					<vertice>
+						<x>-10</x>
+						<y>10</y>
+						<z>-2</z>
+					</vertice>
+					<vertice>
+						<x>-10</x>
+						<y>-10</y>
+						<z>-2</z>
+					</vertice>
+					<vertice>
+						<x>10</x>
+						<y>10</y>
+						<z>-2</z>
+					</vertice>
+				</triangulo>
+			</triangulos>
+			<colorDifuso>
+				<r>155</r>
+				<g>155</g>
+				<b>155</b>
+			</colorDifuso>
+			<colorEspecular>
+				<r>155</r>
+				<g>155</g>
+				<b>155</b>
+			</colorEspecular>
+			<ka>0.1</ka>
+			<kd>0.8</kd>
+			<ks>0.05</ks>
+			<kt>0.05</kt>
+			<indRefrac>1.0</indRefrac>
+		</malla_poligonal>
+		<malla_poligonal>
+			<triangulos>
+				<triangulo>
+					<vertice>
+						<x>-10</x>
+						<y>10</y>
+						<z>-2</z>
+					</vertice>
+					<vertice>
+						<x>-10</x>
+						<y>-10</y>
+						<z>24</z>
+					</vertice>
+					<vertice>
+						<x>-10</x>
+						<y>-10</y>
+						<z>-2</z>
+					</vertice>
+				</triangulo>
+				<triangulo>
 					<vertice>
 						<x>-10</x>
 						<y>10</y>
@@ -146,22 +247,27 @@
 						<y>-10</y>
 						<z>24</z>
 					</vertice>
+					<vertice>
+						<x>-10</x>
+						<y>10</y>
+						<z>-2</z>
+					</vertice>
 				</triangulo>
 			</triangulos>
 			<colorDifuso>
-				<r>0</r>
-				<g>0</g>
-				<b>125</b>
+				<r>155</r>
+				<g>155</g>
+				<b>155</b>
 			</colorDifuso>
 			<colorEspecular>
-				<r>0</r>
-				<g>0</g>
-				<b>125</b>
+				<r>155</r>
+				<g>155</g>
+				<b>155</b>
 			</colorEspecular>
 			<ka>0.1</ka>
-			<kd>0.9</kd>
-			<ks>0.0</ks>
-			<kt>0.0</kt>
+			<kd>0.8</kd>
+			<ks>0.05</ks>
+			<kt>0.05</kt>
 			<indRefrac>1.0</indRefrac>
 		</malla_poligonal>
 		<malla_poligonal>
@@ -178,96 +284,43 @@
 						<z>-2</z>
 					</vertice>
 					<vertice>
-						<x>-10</x>
+						<x>10</x>
 						<y>-10</y>
-						<z>-2</z>
+						<z>24</z>
 					</vertice>
 				</triangulo>
 				<triangulo>
 					<vertice>
-						<x>-10</x>
-						<y>-10</y>
-						<z>-2</z>
-					</vertice>
-					<vertice>
-						<x>-10</x>
+						<x>10</x>
 						<y>10</y>
-						<z>-2</z>
+						<z>24</z>
 					</vertice>
 					<vertice>
 						<x>10</x>
 						<y>10</y>
 						<z>-2</z>
 					</vertice>
-				</triangulo>
-			</triangulos>
-			<colorDifuso>
-				<r>0</r>
-				<g>0</g>
-				<b>125</b>
-			</colorDifuso>
-			<colorEspecular>
-				<r>0</r>
-				<g>0</g>
-				<b>125</b>
-			</colorEspecular>
-			<ka>0.1</ka>
-			<kd>0.9</kd>
-			<ks>0.0</ks>
-			<kt>0.0</kt>
-			<indRefrac>1.0</indRefrac>
-		</malla_poligonal>
-		<malla_poligonal>
-			<triangulos>
-				<triangulo>
 					<vertice>
-						<x>-10</x>
+						<x>10</x>
 						<y>-10</y>
 						<z>24</z>
-					</vertice>
-					<vertice>
-						<x>-10</x>
-						<y>10</y>
-						<z>-2</z>
-					</vertice>
-					<vertice>
-						<x>-10</x>
-						<y>-10</y>
-						<z>-2</z>
-					</vertice>
-				</triangulo>
-				<triangulo>
-					<vertice>
-						<x>-10</x>
-						<y>-10</y>
-						<z>24</z>
-					</vertice>
-					<vertice>
-						<x>-10</x>
-						<y>10</y>
-						<z>24</z>
-					</vertice>
-					<vertice>
-						<x>-10</x>
-						<y>10</y>
-						<z>-2</z>
 					</vertice>
 				</triangulo>
 			</triangulos>
 			<colorDifuso>
-				<r>0</r>
-				<g>0</g>
-				<b>125</b>
+				<r>155</r>
+				<g>155</g>
+				<b>155</b>
 			</colorDifuso>
 			<colorEspecular>
-				<r>0</r>
-				<g>0</g>
-				<b>125</b>
+				<r>155</r>
+				<g>155</g>
+				<b>155</b>
 			</colorEspecular>
 			<ka>0.1</ka>
-			<kd>0.9</kd>
-			<ks>0.0</ks>
-			<kt>0.0</kt>
+			<kd>0.8</kd>
+			<ks>0.05</ks>
+			<kt>0.05</kt>
 			<indRefrac>1.0</indRefrac>
 		</malla_poligonal>
 		<malla_poligonal>
@@ -275,57 +328,9 @@
 				<triangulo>
 					<vertice>
 						<x>10</x>
-						<y>-10</y>
-						<z>-2</z>
-					</vertice>
-					<vertice>
-						<x>10</x>
-						<y>10</y>
-						<z>-2</z>
-					</vertice>
-					<vertice>
-						<x>10</x>
-						<y>-10</y>
-						<z>24</z>
-					</vertice>
-				</triangulo>
-				<triangulo>
-					<vertice>
-						<x>10</x>
-						<y>10</y>
-						<z>-2</z>
-					</vertice>
-					<vertice>
-						<x>10</x>
 						<y>10</y>
 						<z>24</z>
 					</vertice>
-					<vertice>
-						<x>10</x>
-						<y>-10</y>
-						<z>24</z>
-					</vertice>
-				</triangulo>
-			</triangulos>
-			<colorDifuso>
-				<r>0</r>
-				<g>0</g>
-				<b>125</b>
-			</colorDifuso>
-			<colorEspecular>
-				<r>0</r>
-				<g>0</g>
-				<b>125</b>
-			</colorEspecular>
-			<ka>0.1</ka>
-			<kd>0.9</kd>
-			<ks>0.0</ks>
-			<kt>0.0</kt>
-			<indRefrac>1.0</indRefrac>
-		</malla_poligonal>
-		<malla_poligonal>
-			<triangulos>
-				<triangulo>
 					<vertice>
 						<x>-10</x>
 						<y>10</y>
@@ -334,22 +339,17 @@
 					<vertice>
 						<x>10</x>
 						<y>10</y>
-						<z>24</z>
-					</vertice>
-					<vertice>
-						<x>10</x>
-						<y>10</y>
 						<z>-2</z>
 					</vertice>
 				</triangulo>
 				<triangulo>
 					<vertice>
-						<x>10</x>
+						<x>-10</x>
 						<y>10</y>
 						<z>-2</z>
 					</vertice>
 					<vertice>
-						<x>-10</x>
+						<x>10</x>
 						<y>10</y>
 						<z>-2</z>
 					</vertice>
@@ -361,19 +361,19 @@
 				</triangulo>
 			</triangulos>
 			<colorDifuso>
-				<r>0</r>
-				<g>0</g>
-				<b>125</b>
+				<r>155</r>
+				<g>155</g>
+				<b>155</b>
 			</colorDifuso>
 			<colorEspecular>
-				<r>0</r>
-				<g>0</g>
-				<b>125</b>
+				<r>155</r>
+				<g>155</g>
+				<b>155</b>
 			</colorEspecular>
 			<ka>0.1</ka>
-			<kd>0.9</kd>
-			<ks>0.0</ks>
-			<kt>0.0</kt>
+			<kd>0.8</kd>
+			<ks>0.05</ks>
+			<kt>0.05</kt>
 			<indRefrac>1.0</indRefrac>
 		</malla_poligonal>
 		<malla_poligonal>
@@ -382,12 +382,12 @@
 					<vertice>
 						<x>10</x>
 						<y>-10</y>
-						<z>-2</z>
+						<z>24</z>
 					</vertice>
 					<vertice>
 						<x>10</x>
 						<y>-10</y>
-						<z>24</z>
+						<z>-2</z>
 					</vertice>
 					<vertice>
 						<x>-10</x>
@@ -399,12 +399,12 @@
 					<vertice>
 						<x>-10</x>
 						<y>-10</y>
-						<z>24</z>
+						<z>-2</z>
 					</vertice>
 					<vertice>
 						<x>-10</x>
 						<y>-10</y>
-						<z>-2</z>
+						<z>24</z>
 					</vertice>
 					<vertice>
 						<x>10</x>
@@ -414,19 +414,19 @@
 				</triangulo>
 			</triangulos>
 			<colorDifuso>
-				<r>0</r>
-				<g>0</g>
-				<b>125</b>
+				<r>155</r>
+				<g>155</g>
+				<b>155</b>
 			</colorDifuso>
 			<colorEspecular>
-				<r>0</r>
-				<g>0</g>
-				<b>125</b>
+				<r>155</r>
+				<g>155</g>
+				<b>155</b>
 			</colorEspecular>
 			<ka>0.1</ka>
-			<kd>0.9</kd>
-			<ks>0.0</ks>
-			<kt>0.0</kt>
+			<kd>0.8</kd>
+			<ks>0.05</ks>
+			<kt>0.05</kt>
 			<indRefrac>1.0</indRefrac>
 		</malla_poligonal>
 	</objetos>

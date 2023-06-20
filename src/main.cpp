@@ -1,5 +1,5 @@
 
-#include "Escena.h"
+#include "../inc/escena.h"
 #include <iostream>
 #include <tuple>
 #include <string>
