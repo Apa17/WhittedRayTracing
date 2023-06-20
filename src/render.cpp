@@ -7,13 +7,12 @@
 #include <sstream>
 #include "../inc/color.h"
 
-using namespace std;
 #pragma warning(disable : 4996)
 
 
 #define BPP 24
 
-int renderizar(int h, int w, h_w_color * colors, string nombreAGuardar) {
+int renderizar(int h, int w, h_w_color * colors, std::string nombreAGuardar) {
 	for (int i = 0; i<3; i++){
 		h_w_color c = colors[i];	
 		FreeImage_Initialise();
@@ -33,12 +32,12 @@ int renderizar(int h, int w, h_w_color * colors, string nombreAGuardar) {
 		}
 		//create directory
 		std::time_t const now_c = std::time(nullptr);
-		stringstream auxiliar;
+		std::stringstream auxiliar;
 		auxiliar << std::put_time(std::localtime(&now_c), "%F %H-%M-%S");
-		string timeanddate = auxiliar.str();
+		std::string timeanddate = auxiliar.str();
 
 		//cout << _mkdir(directorio.c_str()) << endl; //imprime 0 si crea el directorio
-		string directorio;
+		std::string directorio;
 		if (i == 0)
 			directorio = "../output/color";
 		else if (i<2)
@@ -49,8 +48,8 @@ int renderizar(int h, int w, h_w_color * colors, string nombreAGuardar) {
 			return -3;
 		}*/
 		//save img
-		string fileSaveLocation = directorio + "/" + timeanddate + ".png";
-		cout << fileSaveLocation;
+		std::string fileSaveLocation = directorio + "/" + timeanddate + ".png";
+		std::cout << fileSaveLocation;
 		if (FreeImage_Save(FIF_PNG, bitmap, fileSaveLocation.c_str(), 0)){
 			std::cout << "Imagesuccessfully saved !" << std::endl;
 		}else{
@@ -58,5 +57,6 @@ int renderizar(int h, int w, h_w_color * colors, string nombreAGuardar) {
 		}
 		FreeImage_DeInitialise();
 	} // Cleanup !
+	delete[] colors;
 	return 0;
 }

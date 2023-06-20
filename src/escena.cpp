@@ -9,9 +9,7 @@
 #include "color.h"
 #include "../inc/malla_poligonal.h"
 #include "Render.h"
-
-using namespace std;
-using namespace tinyxml2;
+#include <thread>
 
 // #define ANCHO 500; //para probar
 // #define ALTO 500;
@@ -184,6 +182,21 @@ Color Escena::traza_rr_2(Ray ray, bool refraccion, Color fondo){
 	}
 }
 
+void Escena::recorrer_pixeles(int imin, int imax, h_w_color& color, h_w_color& coefs_reflexion_fondo_negro, h_w_color& coefs_refraccion_fondo_negro, Ray** rayos){
+	for (int i = imin; i <= imax; i++) {
+		for (int j = 0; j < this->ancho; j++) {
+			iglobal = i;
+			jglobal = j;
+			double incrementoI = (-i - 1) * (verticalSize / altura);
+			double incrementoJ = (j + 1) * (horizontalSize / ancho);
+			Ray ray = rayos[i][j];
+			color[i][j] = traza_rr(ray, 1);
+			coefs_reflexion_fondo_negro[i][j] = traza_rr_2(ray, false, Color(0,0,0));
+			coefs_refraccion_fondo_negro[i][j] = traza_rr_2(ray, true, Color(0,0,0));
+		}
+	}
+}
+
 int Escena::render() {
 	h_w_color color(
 		altura,
@@ -195,18 +208,15 @@ int Escena::render() {
 		altura,
 		w_color(ancho, Color()));
 	Ray** rayos = camara.getRays(ancho, altura);
-	for (int i = 0; i < altura; i++) {
-		for (int j = 0; j < ancho; j++) {
-			iglobal = i;
-			jglobal = j;
-			double incrementoI = (-i - 1) * (verticalSize / altura);
-			double incrementoJ = (j + 1) * (horizontalSize / ancho);
-			Ray ray = rayos[i][j];
-			color[i][j] = traza_rr(ray, 1);
-			coefs_reflexion_fondo_negro[i][j] = traza_rr_2(ray, false, Color(0,0,0));
-			coefs_refraccion_fondo_negro[i][j] = traza_rr_2(ray, true, Color(0,0,0));
-		}
+	const int max_threads = 8;
+	std::thread t[max_threads];
+	int incremento_i = this->altura / max_threads;
+	for(int i = 0; i < max_threads; i++){
+		t[i] = std::thread(&Escena::recorrer_pixeles, this, i * incremento_i - std::min(1, std::max(0, i)), (i + 1) * incremento_i - 1, std::ref(color), std::ref(coefs_reflexion_fondo_negro), std::ref(coefs_refraccion_fondo_negro), rayos);
 	}
+	for(int i = 0; i < max_threads; i++){
+		t[i].join();
+	}	
 	h_w_color * res = new h_w_color[3];
 	res[0] = color;
 	res[1] = coefs_refraccion_fondo_negro;
@@ -214,19 +224,19 @@ int Escena::render() {
     return renderizar(altura, ancho, res);
 }
 
-Escena::Escena(string s) {	
-    XMLDocument doc;
+Escena::Escena(std::string s) {	
+    tinyxml2::XMLDocument doc;
 	doc.LoadFile(s.c_str());
-	vector<Objeto*> newobjetos;
-	vector<Luz> newluces;
+	std::vector<Objeto*> newobjetos;
+	std::vector<Luz> newluces;
 	this->depth_max = 7;
-	XMLElement * xmlEscena = doc.RootElement();
+	tinyxml2::XMLElement * xmlEscena = doc.RootElement();
 	if (!xmlEscena) {
 		throw std::runtime_error("No se encontro la escena");
 	}
-	this->ancho = stoi(xmlEscena->FirstChildElement("AnchoImagen")->GetText());
-	this->altura = stoi(xmlEscena->FirstChildElement("AlturaImagen")->GetText());
-	XMLElement* xmlCamara = xmlEscena->FirstChildElement("camara");
+	this->ancho = std::stoi(xmlEscena->FirstChildElement("AnchoImagen")->GetText());
+	this->altura = std::stoi(xmlEscena->FirstChildElement("AlturaImagen")->GetText());
+	tinyxml2::XMLElement* xmlCamara = xmlEscena->FirstChildElement("camara");
 	double xcamara, ycamara, zcamara;
 	if(xmlCamara == nullptr){
 		throw std::runtime_error("No se encontro la camara");
@@ -235,45 +245,45 @@ Escena::Escena(string s) {
 	const char* xAuxchar; 
 	const char* yAuxchar;
 	const char* zAuxchar;
-	XMLElement * aux;
+	tinyxml2::XMLElement * aux;
 	aux = xmlCamara->FirstChildElement("posicion");
 	xAuxchar = aux->FirstChildElement("x")->GetText();
-	xcamara = stod(xAuxchar);
+	xcamara = std::stod(xAuxchar);
 	yAuxchar = aux->FirstChildElement("y")->GetText();
-	ycamara = stod(yAuxchar);
+	ycamara = std::stod(yAuxchar);
 	zAuxchar = aux->FirstChildElement("z")->GetText();
-	zcamara = stod(zAuxchar);
+	zcamara = std::stod(zAuxchar);
 	Vector posCamara = Vector(xcamara, ycamara, zcamara);
 
 	double xAux, yAux, zAux;
 	aux = xmlCamara->FirstChildElement("lookAtVector");
 	xAuxchar = aux->FirstChildElement("x")->GetText();
-	xAux = stod(xAuxchar);
+	xAux = std::stod(xAuxchar);
 	yAuxchar = aux->FirstChildElement("y")->GetText();
-	yAux = stod(yAuxchar);
+	yAux = std::stod(yAuxchar);
 	zAuxchar = aux->FirstChildElement("z")->GetText();
-	zAux = stod(zAuxchar);
+	zAux = std::stod(zAuxchar);
 	Vector lookAtCamara = Vector(xAux, yAux, zAux);
 
 	aux = xmlCamara->FirstChildElement("upVector");
 	xAuxchar = aux->FirstChildElement("x")->GetText();
-	xAux = stod(xAuxchar);
+	xAux = std::stod(xAuxchar);
 	yAuxchar = aux->FirstChildElement("y")->GetText();
-	yAux = stod(yAuxchar);
+	yAux = std::stod(yAuxchar);
 	zAuxchar = aux->FirstChildElement("z")->GetText();
-	zAux = stod(zAuxchar);
+	zAux = std::stod(zAuxchar);
 	Vector upVector = Vector(xAux, yAux, zAux);
 
 	const char* auxChar;
 	auxChar = xmlCamara->FirstChildElement("horizontalSize")->GetText();
-	this->horizontalSize = stod(auxChar);
+	this->horizontalSize = std::stod(auxChar);
 	auxChar = xmlCamara->FirstChildElement("verticalSize")->GetText();
-	this->verticalSize = stod(auxChar);
+	this->verticalSize = std::stod(auxChar);
 	this->camara = Camara(posCamara, upVector, lookAtCamara, verticalSize, horizontalSize);
-	XMLElement* xmlLuces = xmlEscena->FirstChildElement("luces");
+	tinyxml2::XMLElement* xmlLuces = xmlEscena->FirstChildElement("luces");
 	if(xmlLuces != NULL) {
 		//cargar luces
-		XMLElement* xmlLuz = xmlLuces->FirstChildElement("luz");
+		tinyxml2::XMLElement* xmlLuz = xmlLuces->FirstChildElement("luz");
 		if(!xmlLuz){
 			throw std::runtime_error("No se encontro la luz");
 		}
@@ -287,22 +297,22 @@ Escena::Escena(string s) {
 			const char* gChar;
 			const char* bChar;
 
-			XMLElement* xmlPosicion = xmlLuz->FirstChildElement("posicion");
+			tinyxml2::XMLElement* xmlPosicion = xmlLuz->FirstChildElement("posicion");
 			xChar = xmlPosicion->FirstChildElement("x")->GetText();
 			yChar = xmlPosicion->FirstChildElement("y")->GetText();
 			zChar = xmlPosicion->FirstChildElement("z")->GetText();
-			x = stod(xChar);
-			y = stod(yChar);
-			z = stod(zChar);
+			x = std::stod(xChar);
+			y = std::stod(yChar);
+			z = std::stod(zChar);
 			Vector p = Vector(x, y, z);
 
-			XMLElement* xmlColor = xmlLuz->FirstChildElement("color");
+			tinyxml2::XMLElement* xmlColor = xmlLuz->FirstChildElement("color");
 			rChar = xmlColor->FirstChildElement("r")->GetText();
 			gChar = xmlColor->FirstChildElement("g")->GetText();
 			bChar = xmlColor->FirstChildElement("b")->GetText();
-			r = stod(rChar);
-			g = stod(gChar);
-			b = stod(bChar);
+			r = std::stod(rChar);
+			g = std::stod(gChar);
+			b = std::stod(bChar);
 
 			Color rgb = Color(r/255,g/255,b/255);
 
@@ -313,9 +323,9 @@ Escena::Escena(string s) {
 			xmlLuz = xmlLuz->NextSiblingElement("luz");
 		}
 	}
-	XMLElement* xmlObjetos = xmlEscena->FirstChildElement("objetos");
+	tinyxml2::XMLElement* xmlObjetos = xmlEscena->FirstChildElement("objetos");
 	if(xmlObjetos != NULL) {
-		XMLElement* xmlEsfera = xmlObjetos->FirstChildElement("esfera");
+		tinyxml2::XMLElement* xmlEsfera = xmlObjetos->FirstChildElement("esfera");
 		while (xmlEsfera)
 		{
 			//cargar esfera
@@ -323,47 +333,47 @@ Escena::Escena(string s) {
 			const char* qAuxChar; 
 
 			qAuxChar = xmlEsfera->FirstChildElement("radio")->GetText();
-			radio = stod(qAuxChar);
+			radio = std::stod(qAuxChar);
 
 			qAuxChar = xmlEsfera->FirstChildElement("centro")->FirstChildElement("x")->GetText();
-			xcentro = stod(qAuxChar);
+			xcentro = std::stod(qAuxChar);
 			qAuxChar = xmlEsfera->FirstChildElement("centro")->FirstChildElement("y")->GetText();
-			ycentro = stod(qAuxChar);
+			ycentro = std::stod(qAuxChar);
 			qAuxChar = xmlEsfera->FirstChildElement("centro")->FirstChildElement("z")->GetText();
-			zcentro = stod(qAuxChar);
+			zcentro = std::stod(qAuxChar);
 			Vector centro = Vector(xcentro - xcamara, ycentro - ycamara, zcentro - zcamara);
 
 			qAuxChar = xmlEsfera->FirstChildElement("colorDifuso")->FirstChildElement("r")->GetText();
-			r = stod(qAuxChar);
+			r = std::stod(qAuxChar);
 			qAuxChar = xmlEsfera->FirstChildElement("colorDifuso")->FirstChildElement("g")->GetText();
-			g = stod(qAuxChar);
+			g = std::stod(qAuxChar);
 			qAuxChar = xmlEsfera->FirstChildElement("colorDifuso")->FirstChildElement("b")->GetText();
-			b = stod(qAuxChar);
+			b = std::stod(qAuxChar);
 			Color colorDifuso = Color(r/255, g/255, b/255);
 
 			qAuxChar = xmlEsfera->FirstChildElement("colorEspecular")->FirstChildElement("r")->GetText();
-			r = stod(qAuxChar);
+			r = std::stod(qAuxChar);
 			qAuxChar = xmlEsfera->FirstChildElement("colorEspecular")->FirstChildElement("g")->GetText();
-			g = stod(qAuxChar);
+			g = std::stod(qAuxChar);
 			qAuxChar = xmlEsfera->FirstChildElement("colorEspecular")->FirstChildElement("b")->GetText();
-			b = stod(qAuxChar);
+			b = std::stod(qAuxChar);
 			Color colorEspecular = Color(r/255, g/255, b/255);
 
 
 			qAuxChar = xmlEsfera->FirstChildElement("ka")->GetText();
-			ka = stod(qAuxChar);
+			ka = std::stod(qAuxChar);
 
 			qAuxChar = xmlEsfera->FirstChildElement("kd")->GetText();
-			kd = stod(qAuxChar);
+			kd = std::stod(qAuxChar);
 
 			qAuxChar = xmlEsfera->FirstChildElement("ks")->GetText();
-			ks = stod(qAuxChar);
+			ks = std::stod(qAuxChar);
 
 			qAuxChar = xmlEsfera->FirstChildElement("kt")->GetText();
-			kt = stod(qAuxChar);
+			kt = std::stod(qAuxChar);
 
 			qAuxChar = xmlEsfera->FirstChildElement("indRefrac")->GetText();
-			double indRefrac = stod(qAuxChar);
+			double indRefrac = std::stod(qAuxChar);
 
 			Objeto* esfera = new Esfera(radio, centro, colorDifuso, colorEspecular, ka, kd, ks, kt, indRefrac);
 			newobjetos.push_back(esfera);
@@ -371,7 +381,7 @@ Escena::Escena(string s) {
 			xmlEsfera = xmlEsfera->NextSiblingElement("esfera");
 		}
 
-		XMLElement* xmlCilindro = xmlObjetos->FirstChildElement("cilindro");
+		tinyxml2::XMLElement* xmlCilindro = xmlObjetos->FirstChildElement("cilindro");
 		while (xmlCilindro)
 		{
 			//cargar cilindro
@@ -379,58 +389,58 @@ Escena::Escena(string s) {
 			const char* qAuxChar; 
 
 			qAuxChar = xmlCilindro->FirstChildElement("radio")->GetText();
-			radio = stod(qAuxChar);
+			radio = std::stod(qAuxChar);
 
 			qAuxChar = xmlCilindro->FirstChildElement("altura")->GetText();
-			altura = stod(qAuxChar);
+			altura = std::stod(qAuxChar);
 
 			qAuxChar = xmlCilindro->FirstChildElement("centro")->FirstChildElement("x")->GetText();
-			xaux = stod(qAuxChar);
+			xaux = std::stod(qAuxChar);
 			qAuxChar = xmlCilindro->FirstChildElement("centro")->FirstChildElement("y")->GetText();
-			yaux = stod(qAuxChar);
+			yaux = std::stod(qAuxChar);
 			qAuxChar = xmlCilindro->FirstChildElement("centro")->FirstChildElement("z")->GetText();
-			zaux = stod(qAuxChar);
+			zaux = std::stod(qAuxChar);
 			Vector centro = Vector(xaux - xcamara, yaux - ycamara, zaux - zcamara);
 
 			qAuxChar = xmlCilindro->FirstChildElement("direccion_eje")->FirstChildElement("x")->GetText();
-			xaux = stod(qAuxChar);
+			xaux = std::stod(qAuxChar);
 			qAuxChar = xmlCilindro->FirstChildElement("direccion_eje")->FirstChildElement("y")->GetText();
-			yaux = stod(qAuxChar);
+			yaux = std::stod(qAuxChar);
 			qAuxChar = xmlCilindro->FirstChildElement("direccion_eje")->FirstChildElement("z")->GetText();
-			zaux = stod(qAuxChar);
+			zaux = std::stod(qAuxChar);
 			Vector direccion_eje = Vector(xaux, yaux, zaux);
 
 			qAuxChar = xmlCilindro->FirstChildElement("colorDifuso")->FirstChildElement("r")->GetText();
-			r = stod(qAuxChar);
+			r = std::stod(qAuxChar);
 			qAuxChar = xmlCilindro->FirstChildElement("colorDifuso")->FirstChildElement("g")->GetText();
-			g = stod(qAuxChar);
+			g = std::stod(qAuxChar);
 			qAuxChar = xmlCilindro->FirstChildElement("colorDifuso")->FirstChildElement("b")->GetText();
-			b = stod(qAuxChar);
+			b = std::stod(qAuxChar);
 			Color colorDifuso = Color(r/255, g/255, b/255);
 
 			qAuxChar = xmlCilindro->FirstChildElement("colorEspecular")->FirstChildElement("r")->GetText();
-			r = stod(qAuxChar);
+			r = std::stod(qAuxChar);
 			qAuxChar = xmlCilindro->FirstChildElement("colorEspecular")->FirstChildElement("g")->GetText();
-			g = stod(qAuxChar);
+			g = std::stod(qAuxChar);
 			qAuxChar = xmlCilindro->FirstChildElement("colorEspecular")->FirstChildElement("b")->GetText();
-			b = stod(qAuxChar);
+			b = std::stod(qAuxChar);
 			Color colorEspecular = Color(r/255, g/255, b/255);
 
 
 			qAuxChar = xmlCilindro->FirstChildElement("ka")->GetText();
-			ka = stod(qAuxChar);
+			ka = std::stod(qAuxChar);
 
 			qAuxChar = xmlCilindro->FirstChildElement("kd")->GetText();
-			kd = stod(qAuxChar);
+			kd = std::stod(qAuxChar);
 
 			qAuxChar = xmlCilindro->FirstChildElement("ks")->GetText();
-			ks = stod(qAuxChar);
+			ks = std::stod(qAuxChar);
 
 			qAuxChar = xmlCilindro->FirstChildElement("kt")->GetText();
-			kt = stod(qAuxChar);
+			kt = std::stod(qAuxChar);
 
 			qAuxChar = xmlCilindro->FirstChildElement("indRefrac")->GetText();
-			indRefrac = stod(qAuxChar);
+			indRefrac = std::stod(qAuxChar);
 
 			Objeto* cilindro = new Cilindro(radio, altura, centro, direccion_eje, colorDifuso, colorEspecular, ka, kd, ks, kt, indRefrac);
 			newobjetos.push_back(cilindro);
@@ -438,7 +448,7 @@ Escena::Escena(string s) {
 			xmlCilindro = xmlCilindro->NextSiblingElement("cilindro");
 		}
 
-		XMLElement* xmlMalla_Poligonal = xmlObjetos->FirstChildElement("malla_poligonal");
+		tinyxml2::XMLElement* xmlMalla_Poligonal = xmlObjetos->FirstChildElement("malla_poligonal");
 		while (xmlMalla_Poligonal)
 		{
 			//cargar malla_poligonal
@@ -446,28 +456,28 @@ Escena::Escena(string s) {
 			const char* qAuxChar; 
 			std::vector<Triangulo> triangulos;
 
-			XMLElement* xmlTriangulos = xmlMalla_Poligonal->FirstChildElement("triangulos");
+			tinyxml2::XMLElement* xmlTriangulos = xmlMalla_Poligonal->FirstChildElement("triangulos");
 			if(!xmlTriangulos){
 				throw std::runtime_error("No hay triangulos");
 			}
-			XMLElement* xmlTriangulo = xmlTriangulos->FirstChildElement("triangulo");
+			tinyxml2::XMLElement* xmlTriangulo = xmlTriangulos->FirstChildElement("triangulo");
 			if(!xmlTriangulo){
 				throw std::runtime_error("No hay triangulos");
 			}
 			while(xmlTriangulo){
 				Vector vertices[3];
-				XMLElement* xmlVertice = xmlTriangulo->FirstChildElement("vertice");
+				tinyxml2::XMLElement* xmlVertice = xmlTriangulo->FirstChildElement("vertice");
 				for(int i=0; i<3; i++){
 					double xaux, yaux, zaux;
 					if(!xmlVertice){
 						throw std::runtime_error("No hay suficientes vertices");
 					}
 					qAuxChar = xmlVertice->FirstChildElement("x")->GetText();
-					xaux = stod(qAuxChar);
+					xaux = std::stod(qAuxChar);
 					qAuxChar = xmlVertice->FirstChildElement("y")->GetText();
-					yaux = stod(qAuxChar);
+					yaux = std::stod(qAuxChar);
 					qAuxChar = xmlVertice->FirstChildElement("z")->GetText();
-					zaux = stod(qAuxChar);
+					zaux = std::stod(qAuxChar);
 					vertices[i] = Vector(xaux - xcamara, yaux - ycamara, zaux - zcamara);
 					xmlVertice = xmlVertice->NextSiblingElement("vertice");
 				}
@@ -476,36 +486,36 @@ Escena::Escena(string s) {
 			}
 
 			qAuxChar = xmlMalla_Poligonal->FirstChildElement("colorDifuso")->FirstChildElement("r")->GetText();
-			r = stod(qAuxChar);
+			r = std::stod(qAuxChar);
 			qAuxChar = xmlMalla_Poligonal->FirstChildElement("colorDifuso")->FirstChildElement("g")->GetText();
-			g = stod(qAuxChar);
+			g = std::stod(qAuxChar);
 			qAuxChar = xmlMalla_Poligonal->FirstChildElement("colorDifuso")->FirstChildElement("b")->GetText();
-			b = stod(qAuxChar);
+			b = std::stod(qAuxChar);
 			Color colorDifuso = Color(r/255, g/255, b/255);
 
 			qAuxChar = xmlMalla_Poligonal->FirstChildElement("colorEspecular")->FirstChildElement("r")->GetText();
-			r = stod(qAuxChar);
+			r = std::stod(qAuxChar);
 			qAuxChar = xmlMalla_Poligonal->FirstChildElement("colorEspecular")->FirstChildElement("g")->GetText();
-			g = stod(qAuxChar);
+			g = std::stod(qAuxChar);
 			qAuxChar = xmlMalla_Poligonal->FirstChildElement("colorEspecular")->FirstChildElement("b")->GetText();
-			b = stod(qAuxChar);
+			b = std::stod(qAuxChar);
 			Color colorEspecular = Color(r/255, g/255, b/255);
 
 
 			qAuxChar = xmlMalla_Poligonal->FirstChildElement("ka")->GetText();
-			ka = stod(qAuxChar);
+			ka = std::stod(qAuxChar);
 
 			qAuxChar = xmlMalla_Poligonal->FirstChildElement("kd")->GetText();
-			kd = stod(qAuxChar);
+			kd = std::stod(qAuxChar);
 
 			qAuxChar = xmlMalla_Poligonal->FirstChildElement("ks")->GetText();
-			ks = stod(qAuxChar);
+			ks = std::stod(qAuxChar);
 
 			qAuxChar = xmlMalla_Poligonal->FirstChildElement("kt")->GetText();
-			kt = stod(qAuxChar);
+			kt = std::stod(qAuxChar);
 
 			qAuxChar = xmlMalla_Poligonal->FirstChildElement("indRefrac")->GetText();
-			indRefrac = stod(qAuxChar);
+			indRefrac = std::stod(qAuxChar);
 
 			Objeto* malla_poligonal = new Malla_Poligonal(triangulos, colorDifuso, colorEspecular, ka, kd, ks, kt, indRefrac);
 			newobjetos.push_back(malla_poligonal);
@@ -541,4 +551,10 @@ void Escena::debug(){
 		std::cout << "Luz posicion: " << luz.posicion << std::endl;
 		std::cout << "Luz color: " << luz.colour << std::endl;
 	}*/
+}
+
+Escena::~Escena(){
+	for(Objeto* obj : objetos){
+		delete obj;
+	}
 }
