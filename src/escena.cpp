@@ -26,13 +26,11 @@
 // double horizontalSize = 1.920;
 // double verticalSize = 1.080;
 
-Color ia = Color(0.5, 0.5, 0.5);
+Color ia = Color(0.3, 0.3, 0.3);
 int iglobal;
 int jglobal;
-// int iglobal_checkear = 671;
-// int jglobal_checkear = 1282;
-int iglobal_checkear = 300;
-int jglobal_checkear = 410;
+int iglobal_checkear = 0;
+int jglobal_checkear = 1288;
 
 Color Escena::sombra_rr(Objeto* o, Ray r, Vector interseccion, Vector normal, int depth){
 	// Rayo vista = r.origen
@@ -69,12 +67,11 @@ Color Escena::sombra_rr(Objeto* o, Ray r, Vector interseccion, Vector normal, in
 			double b = 0.004;
 			double fatt = 1/(b*dl2);
 			Color ip = l.colour;
-			color_s = color_s  + (ip * fatt * o->getcoefDifuso() * NxL * o->getColorDifuso());
+			color_s = color_s  + ((ip * fatt * o->getcoefDifuso() * NxL * o->getColorDifuso()))*luz_visible;;
 			Vector V = (r.direccion.normalized() * - 1);
 			Vector R = (nNormalizado * 2 * NxL) - rayo_s.direccion.normalized();
 			double cosalfa = R * V;
-			color_s = color_s + o->getColorEspecular() * o->getcoefReflex() * fatt * ip * pow(cosalfa,40);
-			color_s = color_s * luz_visible;
+			color_s = color_s + (o->getColorEspecular() * o->getcoefReflex() * fatt * ip * pow(cosalfa,40))*luz_visible;
 		}
 	}
 	
