@@ -35,7 +35,7 @@ std::pair<bool, Punto> Triangulo::chequear_colision(Ray rayo){
     double gamma = (Q - this->c) * actreves;
     double beta = (Q - this->b) * abtreves;
     double alfa = 1 - gamma - beta;
-    if (gamma < 0 || gamma > 1 || beta < 0 || beta > 1 || alfa < 0 || alfa > 1) {
+    if (gamma < -1e-4 || gamma > 1 + 1e-4 || beta < -1e-4 || beta > 1 + 1e-4 || alfa < -1e-4 || alfa > 1 + 1e-4) {
         return std::make_pair(false, Punto(0,0,0));
     } else {
         return std::make_pair(true, Q);
