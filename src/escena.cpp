@@ -169,27 +169,26 @@ Color Escena::traza_rr_2(Ray ray, bool refraccion, Color fondo){
 	}
 }
 
-void Escena::recorrer_pixeles(int imin, int imax, h_w_color& color, int i,Ray** rayos){
+void Escena::recorrer_pixeles(int imin, int imax, h_w_color& color, int indice, Ray** rayos){
 	for (int i = imin; i <= imax; i++) {
 		for (int j = 0; j < this->ancho; j++) {
 			iglobal = i;
 			jglobal = j;
 			Ray ray = rayos[i][j];
-			switch (i)
+			switch (indice)
 			{
 			case 0:
 				color[i][j] = traza_rr(ray, 1);
 				break;
 			case 1:
-				traza_rr_2(ray, false, Color(0,0,0));
+				color[i][j] = traza_rr_2(ray, false, Color(0,0,0));
 				break;
 			case 2:
-				traza_rr_2(ray, true, Color(0,0,0));
+				color[i][j] = traza_rr_2(ray, true, Color(0,0,0));
 				break;
 			default:	
 				break;
 			}
-			color[i][j] = traza_rr(ray, 1);
 		}
 	}
 }
