@@ -13,8 +13,8 @@ Cilindro::Cilindro(double radio, double altura, Punto centro, Punto direccion_ej
     this->ks = coefReflex;
     this->kt = coefTransm;
     this->indRefrac = indRefrac;
-    this->centro_tapa1 = centro + (direccion_eje * (altura/2));
-    this->centro_tapa2 = centro + (direccion_eje * (-altura/2));
+    this->centro_tapa1 = centro + (direccion_eje.normalized() * (altura/2));
+    this->centro_tapa2 = centro + (direccion_eje.normalized() * (-altura/2));
 }
 
 std::pair<bool, Punto> Cilindro::chequear_colision_tapas(Ray rayo) {
@@ -32,10 +32,10 @@ std::pair<bool, Punto> Cilindro::chequear_colision_tapas(Ray rayo) {
     double t2 = ((this->centro_tapa2 - rayo.origen) * normal2) / u2;
     Punto Q1 = rayo.origen + rayo.direccion * t1;
     Punto Q2 = rayo.origen + rayo.direccion * t2;
-    bool x1 = (Q1 - centro_tapa1).getNorma_al_cuadrado() <= this->radio * this->radio;
-    bool x2 = (Q2 - centro_tapa2).getNorma_al_cuadrado() <= this->radio * this->radio;
+    bool x1 = (Q1 - centro_tapa1).getNorma_al_cuadrado() <= (this->radio * this->radio) + 1e-4;
+    bool x2 = (Q2 - centro_tapa2).getNorma_al_cuadrado() <= (this->radio * this->radio) + 1e-4;
     if (t1 > 0 && t2 > 0 && x1 && x2){
-        if ((Q1 - centro_tapa1).getNorma_al_cuadrado() < (Q2 - centro_tapa2).getNorma_al_cuadrado()) {
+        if ((Q1 - rayo.origen).getNorma_al_cuadrado() < (Q2 - rayo.origen).getNorma_al_cuadrado()) {
             return std::make_pair(true, Q1);
         } else {
             return std::make_pair(true, Q2);
@@ -69,16 +69,16 @@ std::pair<bool, Punto> Cilindro::chequear_colision_tronco(Ray rayo) {
     Punto Q2 = o + u * t2;
     double x1 = (Q1 - c) * v;
     double x2 = (Q2 - c) * v;
-    if (t1 > 0 && t2 > 0 && x1 > -h/2 && x1 < h/2 && x2 > -h/2 && x2 < h/2){
+    if (t1 > 0 && t2 > 0 && x1 > -h/2 + 1e-4 && x1 < h/2 + 1e-4 && x2 > -h/2 + 1e-4 && x2 < h/2 + 1e-4){
         if (t1 < t2) {
             return std::make_pair(true, Q1);
         } else {
             return std::make_pair(true, Q2);
         }
-    } else if (t1 > 0 && x1 > -h/2 && x1 < h/2){
+    } else if (t1 > 0 && x1 > -h/2 + 1e-4 && x1 < h/2 + 1e-4){
         return std::make_pair(true, Q1);
     }
-    if(t2 > 0 && x2 > -h/2 && x2 < h/2){
+    if(t2 > 0 && x2 > -h/2 + 1e-4 && x2 < h/2 + 1e-4){
         return std::make_pair(true, Q2);
     }
     return std::make_pair(false, Punto());
