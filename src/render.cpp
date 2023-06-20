@@ -15,7 +15,7 @@
 int renderizar(int h, int w, h_w_color colors, int i, std::string nombreAGuardar) {
 		h_w_color c = colors;	
 		FreeImage_Initialise();
-		FIBITMAP* bitmap = FreeImage_Allocate(3840, 2160, BPP);
+		FIBITMAP* bitmap = FreeImage_Allocate(w, h, BPP);
 		RGBQUAD color;
 		if (!bitmap)
 			return -2;

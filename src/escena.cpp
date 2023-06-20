@@ -26,7 +26,7 @@
 // double horizontalSize = 1.920;
 // double verticalSize = 1.080;
 
-Color ia = Color(0.2, 0.2, 0.2);
+Color ia = Color(0.5, 0.5, 0.5);
 int iglobal;
 int jglobal;
 int iglobal_checkear = 240;
@@ -64,7 +64,7 @@ Color Escena::sombra_rr(Objeto* o, Ray r, Vector interseccion, Vector normal, in
 				}
 			}
 			double dl2 = distancia_entre_punto_al_cuadrado(interseccion, l.posicion);
-			double b = 0.002;
+			double b = 0.004;
 			double fatt = 1/(b*dl2);
 			Color ip = l.colour;
 			color_s = color_s  + (ip * fatt * o->getcoefDifuso() * NxL * o->getColorDifuso());
@@ -81,7 +81,10 @@ Color Escena::sombra_rr(Objeto* o, Ray r, Vector interseccion, Vector normal, in
 	if(depth < depth_max){
 		Vector V = r.direccion.normalized() * -1;
 		double NxV = normal.normalized() * V;
-		double angulo_incidencia = acos(abs(normal.normalized() * V)); //theta i o theta 1 segun el libro
+		if(NxV < 0){
+			NxV = NxV * -1;
+		}
+		double angulo_incidencia = acos(NxV); //theta i o theta 1 segun el libro
 		if(o->getcoefReflex() > 0){
 			Ray rayo_r;	
 			rayo_r.origen = interseccion + normal.normalized() * 0.0001;
@@ -97,8 +100,7 @@ Color Escena::sombra_rr(Objeto* o, Ray r, Vector interseccion, Vector normal, in
 			if (nNormalizado * V > 0){
 				X = nNormalizado * -0.001;
 				n2 = o->getindRefrac();
-			}
-			else {
+			} else {
 				X = nNormalizado * 0.001;
 				n2 = 1;
 			}
@@ -106,29 +108,16 @@ Color Escena::sombra_rr(Objeto* o, Ray r, Vector interseccion, Vector normal, in
 			double angulo_salida = asin(n1/n2*sin(angulo_incidencia)); //theta t o theta 2 segun el libro
 			double thetac = asin(n1 / n2); // theta c o angulo critico
 			rayo_t.origen = interseccion + X;
-			if(n1 > n2 || angulo_incidencia < thetac ){
-				//sin(angulo_salida)*Perpendiular_normal - cos(angulo_incidencia)*normal
+			if((n1 <= n2) || (n1 > n2 && angulo_incidencia < thetac)){
+				//refractar
 				Vector M = (nNormalizado*cos(angulo_incidencia) - V)/sin(angulo_incidencia);
 				rayo_t.direccion = M*sin(angulo_salida) - nNormalizado* cos(angulo_salida);
 				rayo_t.indRefrac = n2;
-			}
-			else {
+			} else {
+				//reflexion interna total
 				rayo_t.indRefrac = r.indRefrac;
 				rayo_t.direccion = (nNormalizado * 2 * NxV) - V; 
-			}
-			// if(iglobal == iglobal_checkear && jglobal == jglobal_checkear){
-			// 	std::cout << "angulo incidencia: " << angulo_incidencia << std::endl;
-			// 	std::cout << "theta c: " << thetac << std::endl;
-			// 	std::cout << "angulo salida: " << angulo_salida << std::endl;
-			// 	std::cout << "r.direccion: " << r.direccion << std::endl;
-			// 	// std::cout << "interseccion: " << interseccion << std::endl;
-			// 	std::cout << "rayo_t.origen: " << rayo_t.origen << std::endl;
-			// 	std::cout << "rayo_t.direccion: " << rayo_t.direccion << std::endl;
-			// 	std::cout << "depth: " << depth << std::endl;
-			// 	std::cout << "n1: " << n1 << std::endl;
-			// 	std::cout << "n2: " << n2 << std::endl;
-			// 	std::cout << "n1/n2: " << n1/n2 << std::endl;
-			// }
+			} 
 			color_t = traza_rr(rayo_t, depth + 1); // escalar color_r por el coeficiente especular y añadir al color;
 			color_t = color_t * o->getcoefTransm();
 		}
