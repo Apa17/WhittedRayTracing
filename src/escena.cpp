@@ -182,7 +182,7 @@ Color Escena::traza_rr_2(Ray ray, bool refraccion, Color fondo){
 	}
 }
 
-void Escena::recorrer_pixeles(int imin, int imax, h_w_color& color, h_w_color& coefs_reflexion_fondo_negro, h_w_color& coefs_refraccion_fondo_negro, Ray** rayos){
+void Escena::recorrer_pixeles(int imin, int imax, h_w_color& color, int i,Ray** rayos){
 	for (int i = imin; i <= imax; i++) {
 		for (int j = 0; j < this->ancho; j++) {
 			iglobal = i;
@@ -190,9 +190,21 @@ void Escena::recorrer_pixeles(int imin, int imax, h_w_color& color, h_w_color& c
 			double incrementoI = (-i - 1) * (verticalSize / altura);
 			double incrementoJ = (j + 1) * (horizontalSize / ancho);
 			Ray ray = rayos[i][j];
+			switch (i)
+			{
+			case 0:
+				color[i][j] = traza_rr(ray, 1);
+				break;
+			case 1:
+				traza_rr_2(ray, false, Color(0,0,0));
+				break;
+			case 2:
+				traza_rr_2(ray, true, Color(0,0,0));
+				break;
+			default:	
+				break;
+			}
 			color[i][j] = traza_rr(ray, 1);
-			coefs_reflexion_fondo_negro[i][j] = traza_rr_2(ray, false, Color(0,0,0));
-			coefs_refraccion_fondo_negro[i][j] = traza_rr_2(ray, true, Color(0,0,0));
 		}
 	}
 }
@@ -201,27 +213,37 @@ int Escena::render() {
 	h_w_color color(
 		altura,
 		w_color(ancho, Color()));
-	h_w_color coefs_refraccion_fondo_negro(
-		altura,
-		w_color(ancho, Color()));
-	h_w_color coefs_reflexion_fondo_negro(
-		altura,
-		w_color(ancho, Color()));
 	Ray** rayos = camara.getRays(ancho, altura);
-	const int max_threads = 8;
+	const int max_threads = 4;
 	std::thread t[max_threads];
 	int incremento_i = this->altura / max_threads;
 	for(int i = 0; i < max_threads; i++){
-		t[i] = std::thread(&Escena::recorrer_pixeles, this, i * incremento_i - std::min(1, std::max(0, i)), (i + 1) * incremento_i - 1, std::ref(color), std::ref(coefs_reflexion_fondo_negro), std::ref(coefs_refraccion_fondo_negro), rayos);
+		t[i] = std::thread(&Escena::recorrer_pixeles, this, i * incremento_i - std::min(1, std::max(0, i)), (i + 1) * incremento_i - 1, std::ref(color), 0, rayos);
+	}
+	for(int i = 0; i < max_threads; i++){
+		t[i].join();
+	}
+    renderizar(altura, ancho, color, 0);
+	h_w_color coefs_refraccion_fondo_negro(
+		altura,
+		w_color(ancho, Color()));
+	for(int i = 0; i < max_threads; i++){
+		t[i] = std::thread(&Escena::recorrer_pixeles, this, i * incremento_i - std::min(1, std::max(0, i)), (i + 1) * incremento_i - 1, std::ref(coefs_refraccion_fondo_negro), 1, rayos);
 	}
 	for(int i = 0; i < max_threads; i++){
 		t[i].join();
 	}	
-	h_w_color * res = new h_w_color[3];
-	res[0] = color;
-	res[1] = coefs_refraccion_fondo_negro;
-	res[2] = coefs_reflexion_fondo_negro;
-    return renderizar(altura, ancho, res);
+	renderizar(altura, ancho, coefs_refraccion_fondo_negro, 1);
+	h_w_color coefs_reflexion_fondo_negro(
+		altura,
+		w_color(ancho, Color()));
+	for(int i = 0; i < max_threads; i++){
+		t[i] = std::thread(&Escena::recorrer_pixeles, this, i * incremento_i - std::min(1, std::max(0, i)), (i + 1) * incremento_i - 1, std::ref(coefs_reflexion_fondo_negro), 2, rayos);
+	}
+	for(int i = 0; i < max_threads; i++){
+		t[i].join();
+	}
+	renderizar(altura, ancho, coefs_reflexion_fondo_negro, 2);
 }
 
 Escena::Escena(std::string s) {	

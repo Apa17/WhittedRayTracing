@@ -12,11 +12,10 @@
 
 #define BPP 24
 
-int renderizar(int h, int w, h_w_color * colors, std::string nombreAGuardar) {
-	for (int i = 0; i<3; i++){
-		h_w_color c = colors[i];	
+int renderizar(int h, int w, h_w_color colors, int i, std::string nombreAGuardar) {
+		h_w_color c = colors;	
 		FreeImage_Initialise();
-		FIBITMAP* bitmap = FreeImage_Allocate(w, h, BPP);
+		FIBITMAP* bitmap = FreeImage_Allocate(3840, 2160, BPP);
 		RGBQUAD color;
 		if (!bitmap)
 			return -2;
@@ -56,7 +55,6 @@ int renderizar(int h, int w, h_w_color * colors, std::string nombreAGuardar) {
 			return -4;
 		}
 		FreeImage_DeInitialise();
-	} // Cleanup !
-	delete[] colors;
+	 // Cleanup !
 	return 0;
 }

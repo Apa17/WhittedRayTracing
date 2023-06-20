@@ -4,10 +4,10 @@
 	anchoImagen / altura imagen para dar una imagen correcta
 	si no va a estar estirada -->
 	<AnchoImagen>
-		1920
+		3840
 	</AnchoImagen>
 	<AlturaImagen>
-		1080
+		2160
 	</AlturaImagen>
 	<camara>
 		<posicion>

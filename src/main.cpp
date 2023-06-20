@@ -18,6 +18,8 @@ double verticalSize = 1;
 // #define ALTO 2160;
 // double horizontalSize = 1.920;
 // double verticalSize = 1.080;
+#define BPP 24
+#include "../inc/FreeImage.h"
 
 int main() {
 	//objetos[0] = &cilindro;
@@ -27,6 +29,10 @@ int main() {
 		s = "default";
 	}
 	*/
+	FIBITMAP* bitmap = FreeImage_Allocate(3840, 2160, BPP);
+		RGBQUAD color;
+		if (!bitmap)
+			return -2;
 
 	//leer nombre del archivo xml
 	std::string s = "default";
