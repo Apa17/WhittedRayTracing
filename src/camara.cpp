@@ -4,7 +4,7 @@
 Camara::Camara(Vector posicion, Vector upVector, Vector lookatVector, double verticalSize, double horizontalSize) {
     this->posicion = Vector(0,0,0);
     this->upVector = upVector.normalized();
-    this->lookatVector = (lookatVector - posicion).normalized();
+    this->lookatVector = (lookatVector).normalized();
     this->verticalSize = verticalSize;
     this->horizontalSize = horizontalSize;
 }

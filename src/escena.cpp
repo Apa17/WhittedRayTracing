@@ -29,8 +29,10 @@
 Color ia = Color(0.5, 0.5, 0.5);
 int iglobal;
 int jglobal;
-int iglobal_checkear = 688;
-int jglobal_checkear = 1288;
+// int iglobal_checkear = 671;
+// int jglobal_checkear = 1282;
+int iglobal_checkear = 300;
+int jglobal_checkear = 410;
 
 Color Escena::sombra_rr(Objeto* o, Ray r, Vector interseccion, Vector normal, int depth){
 	// Rayo vista = r.origen
@@ -130,8 +132,6 @@ Color Escena::traza_rr(Ray ray, int depth){
 	if(depth > depth_max){
 		return Color(0.1, 0.1, 0.1);
 	}
-
-
 	std::pair<bool, Vector> colision_id = std::make_pair(false, Vector(0, 0, 0)); 
 	Objeto* oid = nullptr;
 	for(Objeto* o : objetos){
@@ -142,13 +142,6 @@ Color Escena::traza_rr(Ray ray, int depth){
 		}
 	}
 	if(colision_id.first){
-		if (iglobal == iglobal_checkear && jglobal == jglobal_checkear){
-			oid->Print();
-			std::cout << "dept" << depth << std::endl;
-			std::cout << "puntos intersect" << colision_id.second << std::endl;
-			std::cout << "rayo origen" << ray.origen << std::endl;
-			std::cout << "rayo direccion" << ray.direccion << std::endl;
-		}
 		//calcular la normal en la intersección;
 		Vector normal = oid->getNormal(colision_id.second);
 		// return sombra_RR(obj. intersecado más cercano, rayo, intersección, normal, profundidad);
@@ -184,8 +177,6 @@ void Escena::recorrer_pixeles(int imin, int imax, h_w_color& color, int i,Ray** 
 		for (int j = 0; j < this->ancho; j++) {
 			iglobal = i;
 			jglobal = j;
-			double incrementoI = (-i - 1) * (verticalSize / altura);
-			double incrementoJ = (j + 1) * (horizontalSize / ancho);
 			Ray ray = rayos[i][j];
 			switch (i)
 			{
@@ -215,11 +206,11 @@ int Escena::render() {
 	std::thread t[max_threads];
 	int incremento_i = this->altura / max_threads;
 	for(int i = 0; i < max_threads; i++){
-		recorrer_pixeles(i * incremento_i - std::min(1, std::max(0, i)), (i + 1) * incremento_i - 1, std::ref(color), 0, rayos);
-		//t[i] = std::thread(&Escena::recorrer_pixeles, this, i * incremento_i - std::min(1, std::max(0, i)), (i + 1) * incremento_i - 1, std::ref(color), 0, rayos);
+		// recorrer_pixeles(i * incremento_i - std::min(1, std::max(0, i)), (i + 1) * incremento_i - 1, std::ref(color), 0, rayos);
+		t[i] = std::thread(&Escena::recorrer_pixeles, this, i * incremento_i - std::min(1, std::max(0, i)), (i + 1) * incremento_i - 1, std::ref(color), 0, rayos);
 	}
 	for(int i = 0; i < max_threads; i++){
-		//t[i].join();
+		t[i].join();
 	}
     renderizar(altura, ancho, color, 0);
 	h_w_color coefs_refraccion_fondo_negro(
@@ -242,6 +233,7 @@ int Escena::render() {
 		t[i].join();
 	}
 	renderizar(altura, ancho, coefs_reflexion_fondo_negro, 2);
+	return 0;
 }
 
 Escena::Escena(std::string s) {	
@@ -324,7 +316,7 @@ Escena::Escena(std::string s) {
 			x = std::stod(xChar);
 			y = std::stod(yChar);
 			z = std::stod(zChar);
-			Vector p = Vector(x, y, z);
+			Vector p = Vector(x - xcamara, y - ycamara, z - zcamara);
 
 			tinyxml2::XMLElement* xmlColor = xmlLuz->FirstChildElement("color");
 			rChar = xmlColor->FirstChildElement("r")->GetText();
@@ -567,10 +559,10 @@ void Escena::debug(){
 
 	// camara.getRays(this->ancho, this->altura);
 
-	/*for(Luz luz : luces){
+	for(Luz luz : luces){
 		std::cout << "Luz posicion: " << luz.posicion << std::endl;
 		std::cout << "Luz color: " << luz.colour << std::endl;
-	}*/
+	}
 }
 
 Escena::~Escena(){
