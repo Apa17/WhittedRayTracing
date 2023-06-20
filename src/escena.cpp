@@ -29,8 +29,8 @@
 Color ia = Color(0.5, 0.5, 0.5);
 int iglobal;
 int jglobal;
-int iglobal_checkear = 240;
-int jglobal_checkear = 458;
+int iglobal_checkear = 688;
+int jglobal_checkear = 1288;
 
 Color Escena::sombra_rr(Objeto* o, Ray r, Vector interseccion, Vector normal, int depth){
 	// Rayo vista = r.origen
@@ -131,6 +131,7 @@ Color Escena::traza_rr(Ray ray, int depth){
 		return Color(0.1, 0.1, 0.1);
 	}
 
+
 	std::pair<bool, Vector> colision_id = std::make_pair(false, Vector(0, 0, 0)); 
 	Objeto* oid = nullptr;
 	for(Objeto* o : objetos){
@@ -141,6 +142,13 @@ Color Escena::traza_rr(Ray ray, int depth){
 		}
 	}
 	if(colision_id.first){
+		if (iglobal == iglobal_checkear && jglobal == jglobal_checkear){
+			oid->Print();
+			std::cout << "dept" << depth << std::endl;
+			std::cout << "puntos intersect" << colision_id.second << std::endl;
+			std::cout << "rayo origen" << ray.origen << std::endl;
+			std::cout << "rayo direccion" << ray.direccion << std::endl;
+		}
 		//calcular la normal en la intersección;
 		Vector normal = oid->getNormal(colision_id.second);
 		// return sombra_RR(obj. intersecado más cercano, rayo, intersección, normal, profundidad);
@@ -207,10 +215,11 @@ int Escena::render() {
 	std::thread t[max_threads];
 	int incremento_i = this->altura / max_threads;
 	for(int i = 0; i < max_threads; i++){
-		t[i] = std::thread(&Escena::recorrer_pixeles, this, i * incremento_i - std::min(1, std::max(0, i)), (i + 1) * incremento_i - 1, std::ref(color), 0, rayos);
+		recorrer_pixeles(i * incremento_i - std::min(1, std::max(0, i)), (i + 1) * incremento_i - 1, std::ref(color), 0, rayos);
+		//t[i] = std::thread(&Escena::recorrer_pixeles, this, i * incremento_i - std::min(1, std::max(0, i)), (i + 1) * incremento_i - 1, std::ref(color), 0, rayos);
 	}
 	for(int i = 0; i < max_threads; i++){
-		t[i].join();
+		//t[i].join();
 	}
     renderizar(altura, ancho, color, 0);
 	h_w_color coefs_refraccion_fondo_negro(
@@ -543,8 +552,8 @@ Escena::Escena(std::string s) {
 
 void Escena::debug(){
 	Ray r;
-	r.origen = Vector(0,0,0);
-	r.direccion = Vector(0,0,1);
+	r.origen = Vector(0,10,10);
+	r.direccion = Vector(0,-1,0);
 	r.indRefrac = 1;
 	
 	for(Objeto* obj : objetos){

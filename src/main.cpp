@@ -43,7 +43,7 @@ int main() {
 		std::cout << s << '\n';
 		Escena e = Escena(s);
 		//renderizar y guardar en png
-		// e.debug();
+		//e.debug();
 
 		return e.render();
 	}
