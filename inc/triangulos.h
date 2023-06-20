@@ -4,15 +4,16 @@
 #include "objeto.h"
 #include "punto.h"
 
-class Triangulo : public Objeto {
+class Triangulo {
 	private:
         Punto a;
         Punto b;
         Punto c;
         Punto normal;
 	public:
-		Triangulo(Punto a, Punto b, Punto c, Color colorDifuso, Color colorEspecular, double ka, double kd, double coefReflex, double coefTransm, double indRefrac);
+		Triangulo(Punto a, Punto b, Punto c);
 		std::pair<bool, Punto> chequear_colision(Ray rayo);
 		Punto getNormal(Punto punto);
+		friend std::ostream& operator<<(std::ostream& os, const Triangulo& obj);
 };
 #endif 

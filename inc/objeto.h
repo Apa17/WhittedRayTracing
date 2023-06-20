@@ -5,6 +5,8 @@
 #include "punto.h"
 #include "color.h"
 #include <tuple>
+#include <iostream>
+
 class Objeto {
 	public: 
 		virtual std::pair<bool, Punto> chequear_colision(Ray rayo) = 0;
@@ -16,6 +18,7 @@ class Objeto {
 		double getindRefrac();
 		Color getColorDifuso();
 		Color getColorEspecular();
+		virtual void Print() = 0;
 		//double isInside(Punto punto);
 	protected:
 		Color colorDifuso;

@@ -20,5 +20,6 @@ class Cilindro : public Objeto {
 		std::pair<bool, Punto> chequear_colision_tapas (Ray rayo);
 		std::pair<bool, Punto> chequear_colision_tronco (Ray rayo);
 		Punto getNormal(Punto punto);
+		void Print();
 };
 #endif 

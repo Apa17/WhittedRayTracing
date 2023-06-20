@@ -115,3 +115,7 @@ Punto Cilindro::getNormal(Punto p) {
         return this->direccion_eje * -1;
     }
 }
+
+void Cilindro::Print(){
+    std::cout << "Cilindro: Centro: " << this->centro << " Radio: " << this->radio << " Altura: " << this->altura << " Direccion_Eje: " << this->direccion_eje << "\n";
+}

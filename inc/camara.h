@@ -12,6 +12,7 @@ class Camara {
         double horizontalSize;
     public:
         Camara(Punto posicion, Punto upVector, Punto lookatVector, double verticalSize, double horizontalSize);
+        Camara();
         Punto getPosicion();
         Punto getUpVector();
         Punto getLookatVector();

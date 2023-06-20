@@ -1,8 +1,7 @@
 #include "../inc/malla_poligonal.h"
 
-Malla_Poligonal::Malla_Poligonal(Triangulo** poligonos, int cantidad_triangulos, Color colorDifuso, Color colorEspecular, double ka, double kd, double coefReflex, double coefTransm, double indRefrac) {
+Malla_Poligonal::Malla_Poligonal(std::vector<Triangulo> poligonos, Color colorDifuso, Color colorEspecular, double ka, double kd, double coefReflex, double coefTransm, double indRefrac) {
     this->poligonos = poligonos;
-    this->cantidad_triangulos = cantidad_triangulos;
     this->colorDifuso = colorDifuso;
     this->colorEspecular = colorEspecular;
     this->ka = ka;
@@ -17,28 +16,28 @@ Punto Malla_Poligonal::getNormal(Punto punto) {
     rayo.origen = Punto(0,0,0);
     rayo.direccion = punto;
     std::pair<bool, Punto> colision = std::make_pair(false, Punto(0,0,0));
-    Triangulo * triangulo = NULL;
-    for (int i = 0; i < this->cantidad_triangulos; i++) {
-        std::pair<bool, Punto> colisionActual = this->poligonos[i]->chequear_colision(rayo);
+    Punto res = Punto();
+    for (Triangulo poligono: this->poligonos) {
+        std::pair<bool, Punto> colisionActual = poligono.chequear_colision(rayo);
         if (colisionActual.first) {
             if (colision.first) {
                 if ((colisionActual.second - rayo.origen).normalized() < (colision.second - rayo.origen).normalized()) {
                     colision = colisionActual;
-                    triangulo = this->poligonos[i];
+                    res = poligono.getNormal(punto);
                 }
             } else {
                 colision = colisionActual;
-                triangulo = this->poligonos[i];
+                res = poligono.getNormal(punto);
             }
         }
     }
-    return triangulo->getNormal(punto);
+    return res;
 }
 
 std::pair<bool, Punto> Malla_Poligonal::chequear_colision(Ray rayo){
     std::pair<bool, Punto> colision = std::make_pair(false, Punto(0,0,0));
-    for (int i = 0; i < this->cantidad_triangulos; i++) {
-        std::pair<bool, Punto> colisionActual = this->poligonos[i]->chequear_colision(rayo);
+    for (Triangulo triangulo: this->poligonos) {
+        std::pair<bool, Punto> colisionActual = triangulo.chequear_colision(rayo);
         if (colisionActual.first) {
             if (colision.first) {
                 if ((colisionActual.second - rayo.origen).normalized() < (colision.second - rayo.origen).normalized()) {
@@ -50,4 +49,11 @@ std::pair<bool, Punto> Malla_Poligonal::chequear_colision(Ray rayo){
         }
     }
     return colision;
+}
+
+void Malla_Poligonal::Print(){
+    std::cout << "Triangulos: \n";
+    for (Triangulo poligono: this->poligonos) {
+        std::cout << poligono << "\n";
+    }
 }

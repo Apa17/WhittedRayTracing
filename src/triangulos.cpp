@@ -1,16 +1,11 @@
 #include "../inc/triangulos.h"
 #include <iostream>
 
-Triangulo::Triangulo(Punto a, Punto b, Punto c, Color colorDifuso, Color colorEspecular, double ka, double kd, double coefReflex, double coefTransm, double indRefrac) {
+Triangulo::Triangulo(Punto a, Punto b, Punto c) {
     this->a = a;
     this->b = b;
     this->c = c;
     this->normal = (b-a).cross(c-a).normalized();
-    this->colorDifuso = colorDifuso;
-    this->colorEspecular = colorEspecular;
-    this->ks = coefReflex;
-    this->kt = coefTransm;
-    this->indRefrac = indRefrac;
 }
 
 Punto Triangulo::getNormal(Punto punto) {
@@ -40,4 +35,13 @@ std::pair<bool, Punto> Triangulo::chequear_colision(Ray rayo){
     } else {
         return std::make_pair(true, Q);
     }
+}
+
+std::ostream& operator<<(std::ostream& os, const Triangulo& obj) {
+    os << " Triangulo: \n";
+    os << " A: " << obj.a << "\n";
+    os << " B: " << obj.b << "\n";
+    os << " C: " << obj.c << "\n";
+    os << " Normal: " << obj.normal << "\n";
+    return os;
 }

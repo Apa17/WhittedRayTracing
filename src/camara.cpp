@@ -9,6 +9,14 @@ Camara::Camara(Punto posicion, Punto upVector, Punto lookatVector, double vertic
     this->horizontalSize = horizontalSize;
 }
 
+Camara::Camara() {
+    this->posicion = Punto(0,0,0);
+    this->upVector = Punto(0,1,0);
+    this->lookatVector = Punto(0,0,1);
+    this->verticalSize = 1;
+    this->horizontalSize = 1;
+}
+
 Punto Camara::getPosicion() {
     return this->posicion;
 }
@@ -62,4 +70,12 @@ Ray** Camara::getRays(int width, int height) {
     }
     
    return rayos;
+}
+
+double Camara::getVerticalSize() {
+    return this->verticalSize;
+}
+
+double Camara::getHorizontalSize() {
+    return this->horizontalSize;
 }

@@ -43,3 +43,9 @@ std::pair<bool, Punto> Esfera::chequear_colision(Ray rayo) {
 Punto Esfera::getNormal(Punto p) {
     return (p - this->centro).normalized();
 }
+
+void Esfera::Print() {
+    std::cout << "Esfera: \n";
+    std::cout << "Radio: " << this->radio << "\n";
+    std::cout << "Centro: " << this->centro << "\n";
+}

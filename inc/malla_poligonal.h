@@ -7,12 +7,12 @@
 
 class Malla_Poligonal : public Objeto {
 	private:
-		Triangulo** poligonos;
-        int cantidad_triangulos;
+		std::vector<Triangulo> poligonos;
 	public:
-		Malla_Poligonal(Triangulo** poligonos, int cantidad_triangulos,Color colorDifuso, Color colorEspecular, double ka, double kd, double coefReflex, double coefTransm, double indRefrac);
+		Malla_Poligonal(std::vector<Triangulo> poligonos, Color colorDifuso, Color colorEspecular, double ka, double kd, double coefReflex, double coefTransm, double indRefrac);
 		std::pair<bool, Punto> chequear_colision(Ray rayo);
 		Punto getNormal(Punto punto);
 		Color getColor();
+		void Print();
 };
 #endif 

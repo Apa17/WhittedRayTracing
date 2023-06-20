@@ -13,5 +13,6 @@ class Esfera : public Objeto {
 		Esfera(double radio, Punto centro, Color colorDifuso, Color colorEspecular, double ka, double kd, double coefReflex, double coefTransm, double indRefrac);
 		std::pair<bool, Punto> chequear_colision(Ray rayo);
 		Punto getNormal(Punto punto);
+		void Print();
 };
 #endif 
