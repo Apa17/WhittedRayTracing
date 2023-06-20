@@ -26,10 +26,10 @@
 // double horizontalSize = 1.920;
 // double verticalSize = 1.080;
 
-Color ia = Color(0.5, 0.5, 0.5);
+Color ia = Color(0.3, 0.3, 0.3);
 int iglobal;
 int jglobal;
-int iglobal_checkear = 688;
+int iglobal_checkear = 0;
 int jglobal_checkear = 1288;
 
 Color Escena::sombra_rr(Objeto* o, Ray r, Vector interseccion, Vector normal, int depth){
@@ -67,12 +67,11 @@ Color Escena::sombra_rr(Objeto* o, Ray r, Vector interseccion, Vector normal, in
 			double b = 0.004;
 			double fatt = 1/(b*dl2);
 			Color ip = l.colour;
-			color_s = color_s  + (ip * fatt * o->getcoefDifuso() * NxL * o->getColorDifuso());
+			color_s = color_s  + ((ip * fatt * o->getcoefDifuso() * NxL * o->getColorDifuso()))*luz_visible;;
 			Vector V = (r.direccion.normalized() * - 1);
 			Vector R = (nNormalizado * 2 * NxL) - rayo_s.direccion.normalized();
 			double cosalfa = R * V;
-			color_s = color_s + o->getColorEspecular() * o->getcoefReflex() * fatt * ip * pow(cosalfa,40);
-			color_s = color_s * luz_visible;
+			color_s = color_s + (o->getColorEspecular() * o->getcoefReflex() * fatt * ip * pow(cosalfa,40))*luz_visible;
 		}
 	}
 	
@@ -215,11 +214,11 @@ int Escena::render() {
 	std::thread t[max_threads];
 	int incremento_i = this->altura / max_threads;
 	for(int i = 0; i < max_threads; i++){
-		recorrer_pixeles(i * incremento_i - std::min(1, std::max(0, i)), (i + 1) * incremento_i - 1, std::ref(color), 0, rayos);
-		//t[i] = std::thread(&Escena::recorrer_pixeles, this, i * incremento_i - std::min(1, std::max(0, i)), (i + 1) * incremento_i - 1, std::ref(color), 0, rayos);
+		//recorrer_pixeles(i * incremento_i - std::min(1, std::max(0, i)), (i + 1) * incremento_i - 1, std::ref(color), 0, rayos);
+		t[i] = std::thread(&Escena::recorrer_pixeles, this, i * incremento_i - std::min(1, std::max(0, i)), (i + 1) * incremento_i - 1, std::ref(color), 0, rayos);
 	}
 	for(int i = 0; i < max_threads; i++){
-		//t[i].join();
+		t[i].join();
 	}
     renderizar(altura, ancho, color, 0);
 	h_w_color coefs_refraccion_fondo_negro(
